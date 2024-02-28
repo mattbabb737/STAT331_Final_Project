@@ -1,6 +1,6 @@
 ---
 title: "STAT331_Final_Project"
-author: "Matt Babb trial"
+author: "Matt Babb , Daniel Alvarez"
 format: html
 editor: visual
 self-contained: true
