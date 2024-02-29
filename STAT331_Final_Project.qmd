@@ -23,10 +23,3 @@ CO2_emissions_data <- read.csv(here::here("co2_pcap_cons.csv"))
 
 
 ```
-
-```{r}
-#| echo: false
-2 * 2
-```
-
-The `echo: false` option disables the printing of code (only output is displayed).
