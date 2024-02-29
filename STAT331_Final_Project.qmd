@@ -37,8 +37,20 @@ co2_long <- co2_long %>%
   mutate(year = str_remove(year, "^X")) |>
   mutate(year = as.numeric(year))
 
-co2_long
 ```
 
 ```{r}
+child_mort_long <- child_mortality_data %>%
+  mutate(across(matches("^X(18|19|20|21)\\d{2}$"), as.character)) %>% 
+  pivot_longer(
+    cols = matches("^X(18|19|20|21)\\d{2}$"), 
+    names_to = "year",
+    values_to = "child_mortality"
+  )
+
+child_mort_long
+
+child_mort_long <- child_mort_long %>%
+  mutate(year = str_remove(year, "^X")) |>
+  mutate(year = as.numeric(year))
 ```
