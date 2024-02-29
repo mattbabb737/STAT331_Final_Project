@@ -1,6 +1,6 @@
 ---
 title: "STAT331_Final_Project"
-author: "Justus Nunez, Matt Babb, Daniel Alvarez"
+author: "Justus Nunez, Matt Babb, Danny Alvarez"
 format: html
 editor: visual
 self-contained: true
