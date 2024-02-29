@@ -17,7 +17,7 @@ library(tidyverse)
 
 child_mortality_data <- read.csv(here::here("child_mortality_0_5_year_olds_dying_per_1000_born.csv"))
 
-CO2_emissions_data <- read.csv(here::here("co2_pcap_cons.csv"))
+co2_pcap_cons <- read.csv(here::here("co2_pcap_cons.csv"))
 
 
 ```
@@ -26,11 +26,16 @@ CO2_emissions_data <- read.csv(here::here("co2_pcap_cons.csv"))
 
 ```{r}
 co2_long <- co2_pcap_cons %>%
-  mutate(across(matches("^(18|19|20)\\d{2}$"), as.character)) %>% # Convert year columns to character
+  mutate(across(matches("^X(18|19|20)\\d{2}$"), as.character)) %>% # Convert year columns to character
   pivot_longer(
-    cols = matches("^(18|19|20)\\d{2}$"), # This regex matches years 1800-2099
+    cols = matches("^X(18|19|20)\\d{2}$"), # This regex matches years 1800-2099
     names_to = "year",
     values_to = "emissions"
   )
+
+co2_long
+```
+
+```{r}
 ```
 
