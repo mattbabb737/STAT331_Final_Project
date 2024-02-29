@@ -25,5 +25,12 @@ CO2_emissions_data <- read.csv(here::here("co2_pcap_cons.csv"))
 ## Pivot the Data
 
 ```{r}
-
+co2_long <- co2_pcap_cons %>%
+  mutate(across(matches("^(18|19|20)\\d{2}$"), as.character)) %>% # Convert year columns to character
+  pivot_longer(
+    cols = matches("^(18|19|20)\\d{2}$"), # This regex matches years 1800-2099
+    names_to = "year",
+    values_to = "emissions"
+  )
 ```
+
