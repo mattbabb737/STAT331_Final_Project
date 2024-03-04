@@ -1,6 +1,6 @@
 ---
 title: "STAT331_Final_Project"
-author: "Justus Nunez, Daniel Alvarez, Matt Babb"
+author: "Justus Nunez, Daniel Alvarez, Matt Babb, Maya Doitch"
 format: html
 editor: visual
 self-contained: true
@@ -59,4 +59,3 @@ child_mort_long <- child_mort_long %>%
 final_data <- child_mort_long %>%
   inner_join(co2_long, by = c("year", "country"))
 ```
-
