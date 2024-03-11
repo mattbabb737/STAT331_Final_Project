@@ -98,7 +98,7 @@ ggplot(summary_table, aes(x = mean_emissions, y = mean_child_mortality)) +
   theme_bw() +
   labs(x = "Mean Emissions", y = "", 
        title = "Scatter Plot of Mean Child Mortality vs Mean Emissions by Country") +
-  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  geom_smooth(method = "lm", color = "blue") +
   scale_x_log10()
 
 ```
@@ -111,7 +111,7 @@ yearly_mean_child_mortality <- final_data %>%
     mean_emissions = mean(emissions, na.rm = TRUE)
   ) %>% 
   ggplot(mapping = aes(x = year)) +
-  geom_line(aes(y = mean_child_mortality, color = "blue")) +
+  geom_line(aes(y = mean_child_mortality)) +
   labs(x = "Year", y = "Mean Child Mortality", title = "Global Yearly Trends") +
   theme_bw()
 
@@ -122,14 +122,40 @@ yearly_mean_emissions <- final_data %>%
     mean_emissions = mean(emissions, na.rm = TRUE)
   ) %>% 
   ggplot(mapping = aes(x = year)) +
-  geom_line(aes(y = mean_emissions, color = "red")) +
+  geom_line(aes(y = mean_emissions)) +
   labs(x = "Year", y = "Mean Emissions", title = "Global Yearly Trends") +
   theme_bw()
 
+yearly_means <- final_data %>%
+  group_by(year) %>%
+  summarise(
+    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
+    mean_emissions = mean(emissions, na.rm = TRUE)
+  )
+
+ggplot(yearly_means, mapping = aes(x = year)) +
+  geom_line(aes(y = mean_child_mortality, color = "Child Mortality")) +
+  geom_line(aes(y = mean_emissions, color = "Emissions")) +
+  labs(x = "Year", 
+       y = "Mean Value", 
+       title = "Global Yearly Trends") +
+  scale_color_manual(values = c("Child Mortality" = "red", "Emissions" = "blue")) +
+  theme_bw()
 
 yearly_mean_child_mortality
 yearly_mean_emissions
+yearly_means
 ```
+
+## Linear Model
+```{r}
+final_data_lm <- lm(mean_child_mortality ~ mean_emissions, data = yearly_means)
+
+library(broom)
+
+tidy(final_data_lm)
+```
+
 
 ## References
 
