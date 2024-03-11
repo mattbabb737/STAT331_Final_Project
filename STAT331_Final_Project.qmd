@@ -11,9 +11,11 @@ self-contained: true
 ```{r}
 library(tidyverse)
 
-child_mortality_data <- read.csv(here::here("child_mortality_0_5_year_olds_dying_per_1000_born.csv"))
+child_mortality_data <- read_csv(here::here("child_mortality_0_5_year_olds_dying_per_1000_born.csv")
+                                 )
 
-co2_pcap_cons <- read.csv(here::here("co2_pcap_cons.csv"))
+co2_pcap_cons <- read_csv(here::here("co2_pcap_cons.csv")
+                          )
 
 
 ```
@@ -40,7 +42,8 @@ Similarly, to make the `co2_pcap_cons` data set usable for analysis, we followed
 
 ```{r}
 co2_long <- co2_pcap_cons %>%
-  mutate(across(matches("^X(18|19|20)\\d{2}$"), as.character)) %>% 
+  mutate(across(matches("^X(18|19|20)\\d{2}$"), as.character)
+         ) %>% 
   pivot_longer(
     cols = matches("^X(18|19|20)\\d{2}$"), 
     names_to = "year",
@@ -48,8 +51,10 @@ co2_long <- co2_pcap_cons %>%
   )
 
 co2_long <- co2_long %>%
-  mutate(year = str_remove(year, "^X")) |>
-  mutate(year = as.numeric(year))
+  mutate(year = str_remove(year, "^X")
+         ) |>
+  mutate(year = as.numeric(year)
+         )
 
 ```
 
@@ -73,7 +78,13 @@ The `child_mort_long` data set and the `co2_long` data set were joined to create
 
 ```{r}
 final_data <- child_mort_long %>%
-  inner_join(co2_long, by = c("year", "country"))
+  inner_join(co2_long, by = c("year", "country")
+             )
+```
+
+```{r}
+
+  
 ```
 
 ## References
