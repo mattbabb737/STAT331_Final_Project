@@ -90,6 +90,19 @@ summary_table <- final_data %>%
 
 summary_table
 ```
+## Linear Regression
+
+```{r}
+ggplot(summary_table, aes(x = mean_emissions, y = mean_child_mortality)) +
+  geom_point() +  # This adds the scatter plot points
+  theme_minimal() +  # Optional: This gives a minimalistic theme to the plot
+  labs(x = "Mean Emissions", y = "Mean Child Mortality", 
+       title = "Scatter Plot of Mean Child Mortality vs Mean Emissions by Country") +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  scale_x_log10()  # Transforms the x-axis to a log10 scale
+
+
+```
 
 ## References
 
