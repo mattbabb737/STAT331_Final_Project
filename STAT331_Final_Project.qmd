@@ -17,7 +17,6 @@ child_mortality_data <- read.csv(here::here("child_mortality_0_5_year_olds_dying
 co2_pcap_cons <- read.csv(here::here("co2_pcap_cons.csv")
                           )
 
-
 ```
 
 ## About the data
