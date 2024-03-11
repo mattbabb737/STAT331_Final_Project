@@ -11,10 +11,10 @@ self-contained: true
 ```{r}
 library(tidyverse)
 
-child_mortality_data <- read_csv(here::here("child_mortality_0_5_year_olds_dying_per_1000_born.csv")
+child_mortality_data <- read.csv(here::here("child_mortality_0_5_year_olds_dying_per_1000_born.csv")
                                  )
 
-co2_pcap_cons <- read_csv(here::here("co2_pcap_cons.csv")
+co2_pcap_cons <- read.csv(here::here("co2_pcap_cons.csv")
                           )
 
 
