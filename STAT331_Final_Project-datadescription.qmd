@@ -161,6 +161,29 @@ ggplot(aes(x = .fitted, y = .resid)) +
   geom_point()
 ```
 
+```{r}
+# Augment the model data
+augmented_data <- augment(final_data_lm)
+
+# Assuming your original dataset `final_data` has the response variable, here named `response`
+# Calculate variance of the response values
+response_variance <- var(final_data$child_mortality, na.rm = TRUE)
+
+# Calculate variance of the fitted values and residuals
+fitted_variance <- var(augmented_data$.fitted, na.rm = TRUE)
+residuals_variance <- var(augmented_data$.resid, na.rm = TRUE)
+
+# Create a tibble to display the variances
+variance_summary <- tibble(
+  Metric = c("Variance of Response", "Variance of Fitted Values", "Variance of Residuals"),
+  Variance = c(response_variance, fitted_variance, residuals_variance)
+)
+
+print(variance_summary)
+
+```
+
+
 ## References
 
 Ranganathan et al., 2015 https://www.nature.com/articles/palcomms201533
