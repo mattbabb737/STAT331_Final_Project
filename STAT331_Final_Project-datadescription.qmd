@@ -153,6 +153,8 @@ tidy(final_data_lm)
 ```{r}
 summary(final_data_lm)
 
+glance(final_data_lm)
+
 final_data_lm |> 
   augment() |> 
 ggplot(aes(x = .fitted, y = .resid)) +
