@@ -108,50 +108,30 @@ ggplot(summary_table, aes(x = mean_emissions, y = mean_child_mortality)) +
 ## Over time
 
 ```{r}
-# Plot 2
-yearly_mean_child_mortality <- final_data %>%
-  group_by(year) %>%
-  summarise(
-    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
-    mean_emissions = mean(emissions, na.rm = TRUE)
-  ) %>% 
-  ggplot(mapping = aes(x = year)) +
-  geom_line(aes(y = mean_child_mortality)) +
-  labs(x = "Year", y = "Mean Child Mortality", title = "Global Yearly Trends") +
-  theme_bw()
-
-# Plot_3
-yearly_mean_emissions <- final_data %>%
-  group_by(year) %>%
-  summarise(
-    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
-    mean_emissions = mean(emissions, na.rm = TRUE)
-  ) %>% 
-  ggplot(mapping = aes(x = year)) +
-  geom_line(aes(y = mean_emissions)) +
-  labs(x = "Year", y = "Mean Emissions", title = "Global Yearly Trends") +
-  theme_bw()
-
-# Plot 1
 yearly_means <- final_data %>%
   group_by(year) %>%
   summarise(
     mean_child_mortality = mean(child_mortality, na.rm = TRUE),
     mean_emissions = mean(emissions, na.rm = TRUE)
   )
+```
 
-ggplot(yearly_means, mapping = aes(x = year)) +
-  geom_line(aes(y = mean_child_mortality, color = "Child Mortality")) +
-  geom_line(aes(y = mean_emissions, color = "Emissions")) +
-  labs(x = "Year", 
-       y = "Mean Value", 
-       title = "Global Yearly Trends") +
-  scale_color_manual(values = c("Child Mortality" = "red", "Emissions" = "blue")) +
-  theme_bw()
 
-yearly_mean_child_mortality
-yearly_mean_emissions
-yearly_means
+```{r}
+#| fig-height: 20
+final_data <- final_data %>%
+  mutate(Decade = cut(year, breaks = seq(1953, 2023, 10), 
+                      labels = c("1953-1962", "1963-1972", "1973-1982", "1983-1992", "1993-2002", "2003-2012", "2013-2022"),
+                      include.lowest = TRUE))
+
+ggplot(final_data, aes(x = emissions, y = child_mortality)) +
+  geom_point() +  # This adds the scatterplot points
+  facet_grid(Decade ~ .) +  # This creates a separate plot for each decade in a vertical layout
+  labs(title = "Child Mortality vs. Emissions Over Decades",
+       x = "Emissions",
+       y = "Child Mortality") +
+  theme_minimal()  # This changes the plot theme to a minimalistic style
+
 ```
 
 ## Linear Model
