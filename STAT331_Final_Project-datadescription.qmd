@@ -80,6 +80,7 @@ final_data$emissions <- as.numeric(as.character(final_data$emissions))
 ```
 
 ## Mean `emissions` and `child_mortality`
+
 ```{r}
 summary_table <- final_data %>%
   group_by(country) %>%
@@ -90,6 +91,7 @@ summary_table <- final_data %>%
 
 summary_table
 ```
+
 ## Linear Regression
 
 ```{r}
@@ -102,8 +104,11 @@ ggplot(summary_table, aes(x = mean_emissions, y = mean_child_mortality)) +
   scale_x_log10()
 
 ```
+
 ## Over time
+
 ```{r}
+# Plot 2
 yearly_mean_child_mortality <- final_data %>%
   group_by(year) %>%
   summarise(
@@ -115,6 +120,7 @@ yearly_mean_child_mortality <- final_data %>%
   labs(x = "Year", y = "Mean Child Mortality", title = "Global Yearly Trends") +
   theme_bw()
 
+# Plot_3
 yearly_mean_emissions <- final_data %>%
   group_by(year) %>%
   summarise(
@@ -126,6 +132,7 @@ yearly_mean_emissions <- final_data %>%
   labs(x = "Year", y = "Mean Emissions", title = "Global Yearly Trends") +
   theme_bw()
 
+# Plot 1
 yearly_means <- final_data %>%
   group_by(year) %>%
   summarise(
@@ -148,6 +155,9 @@ yearly_means
 ```
 
 ## Linear Model
+Our explanatory variable is `mean_emissions`, and our response variable is `mean_child_mortality`.
+
+
 ```{r}
 final_data_lm <- lm(mean_child_mortality ~ mean_emissions, data = yearly_means)
 
@@ -156,6 +166,16 @@ library(broom)
 tidy(final_data_lm)
 ```
 
+## Fit?
+
+```{r}
+summary(final_data_lm)
+
+final_data_lm |> 
+  augment() |> 
+ggplot(aes(x = .fitted, y = .resid)) +
+  geom_point()
+```
 
 ## References
 
