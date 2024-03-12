@@ -123,13 +123,15 @@ final_data <- final_data %>%
   mutate(Decade = cut(year, breaks = seq(1953, 2023, 10), 
                       labels = c("1953-1962", "1963-1972", "1973-1982", "1983-1992", "1993-2002", "2003-2012", "2013-2022"),
                       include.lowest = TRUE))
-
-ggplot(final_data, aes(x = emissions, y = child_mortality)) +
+final_data %>% 
+  filter(!is.na(Decade)) %>% 
+  ggplot(aes(x = emissions, y = child_mortality)) +
   geom_point() +  # This adds the scatterplot points
   facet_grid(Decade ~ .) +  # This creates a separate plot for each decade in a vertical layout
   labs(title = "Child Mortality vs. Emissions Over Decades",
        x = "Emissions",
        y = "Child Mortality") +
+  scale_x_log10() +
   theme_minimal()  # This changes the plot theme to a minimalistic style
 
 ```
