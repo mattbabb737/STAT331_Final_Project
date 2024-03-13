@@ -4,6 +4,7 @@ author: "Justus Nunez, Daniel Alvarez, Matt Babb, Maya Doitch"
 format: html
 editor: visual
 self-contained: true
+code-fold: true
 ---
 
 ## Load the data
@@ -132,6 +133,29 @@ final_data %>%
        y = "Child Mortality") +
   scale_x_log10() +
   theme_minimal()  # This changes the plot theme to a minimalistic style
+
+```
+
+```{r}
+#| fig-height: 20
+final_data_means <- final_data %>%
+  filter(!is.na(Decade)) %>%
+  group_by(country, Decade) %>%
+  summarize(
+    mean_emissions = mean(emissions, na.rm = TRUE),
+    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
+    .groups = 'drop' # This option removes the grouping structure from the result
+  )
+
+# Plot the aggregated data
+ggplot(final_data_means, aes(x = mean_emissions, y = mean_child_mortality)) +
+  geom_point() +  # This adds the scatterplot points
+  facet_grid(Decade ~ ., scales = "free") +  # Facets for each decade in a vertical layout
+  labs(title = "Mean Child Mortality vs. Mean Emissions Over Decades",
+       x = "Mean Emissions",
+       y = "Mean Child Mortality") +
+  scale_x_log10() +
+  theme_minimal()  # Minimalistic style theme
 
 ```
 
