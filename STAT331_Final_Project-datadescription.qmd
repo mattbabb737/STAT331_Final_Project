@@ -79,7 +79,7 @@ final_data$child_mortality <- as.numeric(as.character(final_data$child_mortality
 final_data$emissions <- as.numeric(as.character(final_data$emissions))
 ```
 
-## Mean `emissions` and `child_mortality`
+## Mean `emissions` and `child_mortality` by `country`
 
 ```{r}
 summary_table <- final_data %>%
