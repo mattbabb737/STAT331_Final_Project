@@ -96,7 +96,8 @@ summary_table
 ## Linear Regression
 
 ```{r}
-ggplot(summary_table, aes(x = mean_emissions, y = mean_child_mortality)) +
+ggplot(summary_table, aes(x = mean_emissions,
+                          y = mean_child_mortality)) +
   geom_point() + 
   theme_bw() +
   labs(x = "Mean Emissions", y = "", 
@@ -121,41 +122,30 @@ yearly_means <- final_data %>%
 #| fig-height: 20
 final_data <- final_data %>%
   mutate(Decade = cut(year, breaks = seq(1953, 2023, 10), 
-                      labels = c("1953-1962", "1963-1972", "1973-1982", "1983-1992", "1993-2002", "2003-2012", "2013-2022"),
+                      labels = c("1953-1962", "1963-1972",
+                                 "1973-1982", "1983-1992",
+                                 "1993-2002", "2003-2012",
+                                 "2013-2022"),
                       include.lowest = TRUE))
-final_data %>% 
-  filter(!is.na(Decade)) %>% 
-  ggplot(aes(x = emissions, y = child_mortality)) +
-  geom_point() +  # This adds the scatterplot points
-  facet_grid(Decade ~ .) +  # This creates a separate plot for each decade in a vertical layout
-  labs(title = "Child Mortality vs. Emissions Over Decades",
-       x = "Emissions",
-       y = "Child Mortality") +
-  scale_x_log10() +
-  theme_minimal()  # This changes the plot theme to a minimalistic style
 
-```
-
-```{r}
-#| fig-height: 20
 final_data_means <- final_data %>%
   filter(!is.na(Decade)) %>%
   group_by(country, Decade) %>%
   summarize(
     mean_emissions = mean(emissions, na.rm = TRUE),
     mean_child_mortality = mean(child_mortality, na.rm = TRUE),
-    .groups = 'drop' # This option removes the grouping structure from the result
+    .groups = 'drop'
   )
 
-# Plot the aggregated data
-ggplot(final_data_means, aes(x = mean_emissions, y = mean_child_mortality)) +
-  geom_point() +  # This adds the scatterplot points
-  facet_grid(Decade ~ ., scales = "free") +  # Facets for each decade in a vertical layout
+ggplot(final_data_means, aes(x = mean_emissions,
+                             y = mean_child_mortality)) +
+  geom_point() +
+  facet_grid(Decade ~ ., scales = "free") + 
   labs(title = "Mean Child Mortality vs. Mean Emissions Over Decades",
        x = "Mean Emissions",
        y = "Mean Child Mortality") +
   scale_x_log10() +
-  theme_minimal()  # Minimalistic style theme
+  theme_bw()
 
 ```
 
@@ -164,7 +154,8 @@ ggplot(final_data_means, aes(x = mean_emissions, y = mean_child_mortality)) +
 Our explanatory variable is `mean_emissions`, and our response variable is `mean_child_mortality`.
 
 ```{r}
-final_data_lm <- lm(mean_child_mortality ~ mean_emissions, data = yearly_means)
+final_data_lm <- lm(mean_child_mortality ~ mean_emissions,
+                    data = yearly_means)
 
 library(broom)
 
