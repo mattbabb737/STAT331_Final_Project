@@ -120,7 +120,7 @@ yearly_means <- final_data %>%
 ```
 
 ```{r}
-#| fig-height: 20
+
 final_data <- final_data %>%
   mutate(Decade = cut(year, breaks = seq(1953, 2023, 10), 
                       labels = c("1953-1962", "1963-1972",
@@ -141,7 +141,7 @@ final_data_means <- final_data %>%
 ggplot(final_data_means, aes(x = mean_emissions,
                              y = mean_child_mortality)) +
   geom_point() +
-  facet_grid(Decade ~ ., scales = "free") + 
+  facet_wrap(Decade ~ ., scales = "free") + 
   labs(title = "Mean Child Mortality vs. Mean Emissions Over Decades",
        x = "Mean Emissions",
        y = "Mean Child Mortality") +
