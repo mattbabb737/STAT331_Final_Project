@@ -205,21 +205,6 @@ ggplot(plot_data, aes(x = predicted, y = residuals)) +
   geom_point()
 
 #We need to generate the same plot with the prediction w/ errors as in check point 2
-simulated_data <- data.frame(mean_emissions = final_data_means$mean_emissions,
-                             mean_child_mortality = predictions_w_errors[1:nrow(final_data_means)])
-
-# Add the Decade variable to the simulated_data dataframe
-simulated_data$Decade <- final_data_means$Decade
-
-# Plot the relationships modeled by the linear regression for the simulated data
-ggplot(simulated_data, aes(x = mean_emissions, y = mean_child_mortality)) +
-  geom_point() +
-  facet_wrap(Decade ~ ., scales = "free") + 
-  labs(title = "Simulated Mean Child Mortality vs. Observed Mean Emissions Over Decades",
-       x = "Mean Emissions",
-       y = "Mean Child Mortality") +
-  scale_x_log10() +
-  theme_bw()
 
 
 ```
