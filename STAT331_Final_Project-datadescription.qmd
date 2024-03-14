@@ -174,18 +174,13 @@ ggplot(aes(x = .fitted, y = .resid)) +
 The Adjusted R-squared was 0.9476 for the data indicating that close to 95% of the variability in mean child mortality can be explained by mean CO2 emissions. This indicates that the model is a very good fit for the data. The only issue is the plot of the residuals, since the residuals do not have a random distribution and seem to follow a pattern. This could indicate that the relationship between CO2 emissions and child mortality is non-linear and could lead to issues with other tests on the data.
 
 ```{r}
-# Augment the model data
 augmented_data <- augment(final_data_lm)
 
-# Assuming your original dataset `final_data` has the response variable, here named `response`
-# Calculate variance of the response values
 response_variance <- var(final_data$child_mortality, na.rm = TRUE)
 
-# Calculate variance of the fitted values and residuals
 fitted_variance <- var(augmented_data$.fitted, na.rm = TRUE)
 residuals_variance <- var(augmented_data$.resid, na.rm = TRUE)
 
-# Create a tibble to display the variances
 variance_summary <- tibble(
   Metric = c("Variance of Response", "Variance of Fitted Values", "Variance of Residuals"),
   Variance = c(response_variance, fitted_variance, residuals_variance)
