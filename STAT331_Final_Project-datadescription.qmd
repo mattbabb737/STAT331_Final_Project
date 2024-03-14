@@ -210,7 +210,7 @@ simulated_data$Decade <- final_data_means$Decade
 ggplot(simulated_data, aes(x = mean_emissions, y = mean_child_mortality)) +
   geom_point() +
   facet_wrap(Decade ~ ., scales = "free") + 
-  labs(title = "Simulated Mean Child Mortality vs. Mean Emissions Over Decades",
+  labs(title = "Simulated Mean Child Mortality vs. Observed Mean Emissions Over Decades",
        x = "Mean Emissions",
        y = "Mean Child Mortality") +
   scale_x_log10() +
