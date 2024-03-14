@@ -194,12 +194,16 @@ print(variance_summary)
 ```{r}
 
 predictions <- predict(final_data_lm)
-resid_st_error <- sigma(final_data_lm)
-
-predictions_w_errors <- predictions + rnorm(length(predictions), mean = 0, sd = resid_st_error)
+st_error <- sigma(final_data_lm)
 
 
-#We need to generate the same plot with the prediction w/ errors as in check point 2
+plot_data <- data.frame(predicted = predictions,
+                        residuals = rnorm(length(predictions), mean = 0, sd = st_error))
+
+
+ggplot(plot_data, aes(x = predicted, y = residuals)) +
+  geom_point()
+
 
 ```
 
