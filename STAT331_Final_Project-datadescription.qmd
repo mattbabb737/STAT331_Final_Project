@@ -207,7 +207,7 @@ resid_st_error <- sigma(final_data_lm)
 predictions_w_errors <- predictions + rnorm(length(predictions), mean = 0, sd = resid_st_error)
 
 
-#We need to generate the same plot with the predictiosn w/ erros as in check point 2
+#We need to generate the same plot with the prediction w/ errors as in check point 2
 
 ```
 
