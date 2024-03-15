@@ -215,18 +215,52 @@ ggplot(plot_data, aes(x = predicted, y = residuals)) +
 
 ```{r}
 noise <- function(x, mean = 0, sd) {
-  return(tibble(x + rnorm(length(x),
+  return(x + rnorm(length(x),
             mean,
             sd)
-            )
          )
 }
 
 
 
-simulations <- map(1:1000, ~noise(predictions, sd = st_error))
+simulations <- map_dfc(.x = 1:1000,
+                       .f = ~tibble(simulation = noise(predictions,
+                                                       sd = st_error)
+                                    )
+                       )
 
-lm()
+colnames(simulations) <- colnames(simulations) |> 
+  str_replace(pattern = "\\.\\.\\.",
+                  replace = "_")
+
+binded_simulations <- yearly_means |>
+  filter(!is.na(mean_child_mortality),
+         !is.na(mean_emissions)
+         ) |>
+  select(mean_child_mortality) |>
+  bind_cols(simulations)
+
+head(binded_simulations)
+
+simulated_r_sq <- binded_simulations |>
+  map(~ lm(mean_child_mortality ~ .x, data = binded_simulations)
+      ) |>
+  map(glance) |>
+  map_dbl(~ .x$r.squared)
+
+head(simulated_r_sq)
+
+tibble(simulations = simulated_r_sq) |> 
+  ggplot(aes(x = simulations)) + 
+  geom_histogram(binwidth = 0.001, color = "black", fill = "skyblue") +
+  labs(x = expression("Simulated"~ R^2),
+       y = "",
+       subtitle = "Number of Simulated Models") +
+  theme_bw() +
+  scale_y_continuous(breaks = seq(0,
+                                  60,
+                                  by = 2)
+                     )
 ```
 
 ## References
