@@ -214,11 +214,19 @@ ggplot(plot_data, aes(x = predicted, y = residuals)) +
 ## Simulation Function
 
 ```{r}
-simulate_random_CO2 <- function(data) {
-  
-  
-  
+noise <- function(x, mean = 0, sd) {
+  return(tibble(x + rnorm(length(x),
+            mean,
+            sd)
+            )
+         )
 }
+
+
+
+simulations <- map(1:1000, ~noise(predictions, sd = st_error))
+
+lm()
 ```
 
 ## References
