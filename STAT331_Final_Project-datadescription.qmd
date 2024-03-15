@@ -158,6 +158,8 @@ Our explanatory variable is `mean_emissions`, and our response variable is `mean
 final_data_lm <- lm(mean_child_mortality ~ mean_emissions,
                     data = yearly_means)
 
+summary(final_data_lm)
+
 library(broom)
 
 tidy(final_data_lm)
@@ -177,7 +179,7 @@ The Adjusted R-squared was 0.9476 for the data indicating that close to 95% of t
 ```{r}
 augmented_data <- augment(final_data_lm)
 
-response_variance <- var(final_data$child_mortality, na.rm = TRUE)
+response_variance <- var(augmented_data$mean_child_mortality, na.rm = TRUE)
 
 fitted_variance <- var(augmented_data$.fitted, na.rm = TRUE)
 residuals_variance <- var(augmented_data$.resid, na.rm = TRUE)
@@ -187,7 +189,7 @@ variance_summary <- tibble(
   Variance = c(response_variance, fitted_variance, residuals_variance)
 )
 
-print(variance_summary)
+variance_summary
 
 ```
 
@@ -207,6 +209,16 @@ ggplot(plot_data, aes(x = predicted, y = residuals)) +
 #We need to generate the same plot with the prediction w/ errors as in check point 2
 
 
+```
+
+## Simulation Function
+
+```{r}
+simulate_random_CO2 <- function(data) {
+  
+  
+  
+}
 ```
 
 ## References
