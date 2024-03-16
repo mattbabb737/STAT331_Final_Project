@@ -196,7 +196,12 @@ tidy(final_data_lm)
 
 ### Assessing appropriateness of fit
 
+[text here]
+
 ```{r}
+
+glance(final_data_lm)
+
 
 final_data_lm |> 
   augment() |> 
@@ -244,7 +249,7 @@ predictions %>%
     geom_point()
 ```
 
-## Simulation Function
+## Simulation
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 noise <- function(x, mean = 0, sd) {
@@ -300,6 +305,10 @@ tibble(simulations = simulated_r_sq) |>
                                   by = 2)
                      )
 ```
+
+## Conclusion
+
+[text here]
 
 ## References
 
