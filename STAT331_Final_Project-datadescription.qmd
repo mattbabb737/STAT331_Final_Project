@@ -92,7 +92,38 @@ final_data <- child_mort_long %>%
 
 ```
 
-## Mean `emissions` and `child_mortality` by `country`
+### Exploratory Analysis
+
+```{r}
+final_data <- final_data %>%
+  mutate(Decade = cut(year, breaks = seq(1953, 2023, 10), 
+                      labels = c("1953-1962", "1963-1972",
+                                 "1973-1982", "1983-1992",
+                                 "1993-2002", "2003-2012",
+                                 "2013-2022"),
+                      include.lowest = TRUE))
+
+
+final_data_means <- final_data %>%
+  filter(!is.na(Decade)) %>%
+  group_by(country, Decade) %>%
+  summarize(
+    mean_emissions = mean(emissions, na.rm = TRUE),
+    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
+    .groups = 'drop'
+  )
+
+
+ggplot(final_data_means, aes(x = mean_emissions,
+                             y = mean_child_mortality)) +
+  geom_point() +
+  facet_wrap(Decade ~ ., scales = "free") + 
+  labs(title = "Mean Child Mortality vs. Mean Emissions Over Decades",
+       x = "Mean Emissions",
+       y = "Mean Child Mortality") +
+  scale_x_log10() +
+  theme_bw()
+```
 
 ```{r}
 
@@ -134,38 +165,6 @@ yearly_means <- final_data %>%
 
 ```
 
-```{r}
-
-final_data <- final_data %>%
-  mutate(Decade = cut(year, breaks = seq(1953, 2023, 10), 
-                      labels = c("1953-1962", "1963-1972",
-                                 "1973-1982", "1983-1992",
-                                 "1993-2002", "2003-2012",
-                                 "2013-2022"),
-                      include.lowest = TRUE))
-
-
-final_data_means <- final_data %>%
-  filter(!is.na(Decade)) %>%
-  group_by(country, Decade) %>%
-  summarize(
-    mean_emissions = mean(emissions, na.rm = TRUE),
-    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
-    .groups = 'drop'
-  )
-
-
-ggplot(final_data_means, aes(x = mean_emissions,
-                             y = mean_child_mortality)) +
-  geom_point() +
-  facet_wrap(Decade ~ ., scales = "free") + 
-  labs(title = "Mean Child Mortality vs. Mean Emissions Over Decades",
-       x = "Mean Emissions",
-       y = "Mean Child Mortality") +
-  scale_x_log10() +
-  theme_bw()
-
-```
 
 ## Linear Model
 
