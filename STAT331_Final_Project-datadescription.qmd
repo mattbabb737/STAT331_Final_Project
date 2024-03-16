@@ -159,8 +159,6 @@ Our explanatory variable is `mean_emissions`, and our response variable is `mean
 final_data_lm <- lm(mean_child_mortality ~ mean_emissions,
                     data = yearly_means)
 
-summary(final_data_lm)
-
 tidy(final_data_lm)
 ```
 
