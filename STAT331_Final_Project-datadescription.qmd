@@ -41,7 +41,7 @@ co2_pcap_cons <- read.csv(here::here("co2_pcap_cons.csv"))
 ```
 
 
-## Methods
+## II. Methods
 
 ### Data cleaning
 
@@ -94,6 +94,8 @@ final_data <- child_mort_long %>%
 
 ### Exploratory Analysis
 
+In order to get a sense of how these two variables relate over time, child_mortality and emissions (log transformed) for each country were averaged for each decade starting from the year 1953 through the year 2022. A new variable called Decade was created for this purpose. The resulting mean values are represented in the faceted plot below. Each point represents the mean values over a decade of `child_mortality` and `emissions` per capita for a single country. 
+
 ```{r}
 final_data <- final_data %>%
   mutate(Decade = cut(year, breaks = seq(1953, 2023, 10), 
@@ -118,12 +120,16 @@ ggplot(final_data_means, aes(x = mean_emissions,
                              y = mean_child_mortality)) +
   geom_point() +
   facet_wrap(Decade ~ ., scales = "free") + 
-  labs(title = "Mean Child Mortality vs. Mean Emissions Over Decades",
-       x = "Mean Emissions",
-       y = "Mean Child Mortality") +
+  labs(title = "Mean Child Mortality vs. Mean Emissions Over Decades (1953 - 2022)",
+       x = "Mean Emissions Per Capita (Log Transformed)",
+       y = "") +
   scale_x_log10() +
   theme_bw()
 ```
+
+Each facet in the above plot clearly shows that the correlation between `child_mortality` and `emissions` is negative in every decade since 1953. This consistent pattern supports the hypothesis of an inverse relationship between these variables and provides a solid foundation for further analysis.
+
+## III. Analysis
 
 ```{r}
 
