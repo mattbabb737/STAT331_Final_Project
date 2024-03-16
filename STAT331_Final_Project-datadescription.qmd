@@ -127,7 +127,7 @@ ggplot(final_data_means, aes(x = mean_emissions,
   theme_bw()
 ```
 
-Each facet in the above plot clearly shows that the correlation between `child_mortality` and `emissions` is negative in every decade since 1953. This consistent pattern supports the hypothesis of an inverse relationship between these variables and provides a solid foundation for further analysis.
+Each facet in the above plot clearly shows that the global correlation between `child_mortality` and `emissions` is negative in every decade since 1953. This consistent pattern supports the hypothesis of an inverse relationship between these variables and provides a solid foundation for further analysis.
 
 ## III. Analysis
 
