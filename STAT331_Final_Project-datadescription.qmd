@@ -17,9 +17,19 @@ execute:
   warning: false
 ---
 
-## Load the data
+## I. Introduction
+
+This report investigated the relationship between child mortality and carbon dioxide emissions per capita over the years of 1800 – 2022. Two data sets were acquired from Gapminder, which is an organization that seeks to educate the world’s transmitters of information with up-to-date facts about many metrics of health, infrastructure, sustainability, and many other crucial topics.
+
+The first data set, called `child_mortality_data`, lists the rates of child death under the age of five per 1,000 births from 197 countries (data begins at 1950 for 12 countries). Each observation corresponds to a single country, and each variable is one year.
+
+The second data set, called `co2_pcap_cons`, tracks tonnes (metric) of carbon dioxide emissions per capita for 194 countries. There are no NA values in this data set. Each observation corresponds to a single country, and each variable is one year.
+
+The hypothesized relationship between the two variables is that as the amount of CO2 emissions per capita increases for a country, its child mortality rate will drop. While we are not investigating causality, we anticipate that increased CO2 emissions indicate increasing industrialization and modernization within a country, which tends to predict dropping levels of child mortality (Ranganathan et al., 2015).
 
 ```{r results='hide', message=FALSE, warning=FALSE}
+
+# Load in packages and .csv files
 
 library(tidyverse)
 library(broom)
@@ -30,27 +40,18 @@ co2_pcap_cons <- read.csv(here::here("co2_pcap_cons.csv"))
 
 ```
 
-## About the data
 
-### Child mortality data
+## Methods
 
-The `child_mortality_data`set tracks rates of child deaths under the age of five per 1,000 births from 197 countries accounted for by Gapminder. Observations start from the year 1800 and projected through to 2100 based on the observed trends (data begins at 1950 for 12 countries). Each observation corresponds to a single country, and each variable is one year.
+### Data cleaning
 
-### CO2 emissions per capita data
+After loading the necessary packages and reading in the two *Gapminder* files, both data sets were cleaned for ease of analysis. Each data set had its year variables re-designated as characters to standardize the variable type. The X’s in front of each year (carried over from *Gapminder*) were removed, and each year was then re-designated as a numeric type. Each data set was then pivoted into a long format so that each observation corresponded to a single country for a single year, along with their respective child_mortality and emissions values. These two data sets were named child_mort_long and co2_long.
 
-The `co2_pcap_cons` data set tracks tones of carbon dioxide emissions per capita for 194 countries accounted for by Gapminder. Observations start from the year 1800 and extend to the year 2022 (the most recent year with aggregated data). There are no NA values in this data set. Each observation corresponds to a single country, and each variable is one year.
-
-### Hypothesized relationship
-
-We expect that as the amount of CO2 emissions per capita increases for a country, its child mortality rate will drop. While we are not investigating causality, we anticipate that increased CO2 emissions indicate increasing industrialization and modernization within a country, which tends to predict dropping levels of child mortality (Ranganathan et al., 2015).
-
-## Clean the Data
-
-To make the `child_mortality_data`set usable for analysis, we re-designated all of the year variables into characters to standardize the variable type, and then we pivoted the data into long format so that each observation corresponds to a single country for a single year with its associated \`child_mortality\` rate. We then removed the "X" in front of each year (carried over from the original data source), and we re-designated the year variable as a numeric type. This new data set is called \`child_mort_long\`.
-
-Similarly, to make the `co2_pcap_cons` data set usable for analysis, we followed the same series of steps to convert all of the years into numeric variables, free of "X"s, and created a new longer data set that contains one observation for each country per year, along with its associated \`emissions\` value. This new data set is called \`co2_long\`.
+Finally, these two cleaned data sets were joined into one data set called final_data, which includes both child_mortality and emissions values for 194 countries over the years of 1800 – 2022.
 
 ```{r}
+
+# Convert co2_pcap_cons into long format
 
 co2_long <- co2_pcap_cons %>%
   mutate(across(matches("^X(18|19|20)\\d{2}$"), as.character)) %>% 
@@ -64,9 +65,8 @@ co2_long <- co2_pcap_cons %>%
     year = as.numeric(year)
   )
 
-```
 
-```{r}
+# Convert child_mortality_data into long format
 
 child_mort_long <- child_mortality_data %>%
   mutate(across(matches("^X(18|19|20|21)\\d{2}$"), as.character)) %>% 
@@ -80,19 +80,15 @@ child_mort_long <- child_mortality_data %>%
     year = as.numeric(year)
   )
 
-```
 
-## Join the data
-
-The `child_mort_long` data set and the `co2_long` data set were joined to create a new data set called `final_data`, which will be our primary data set for the rest of the project. Using `inner_join`, we were able to constrain the data just to the years 1800 -- 2022, so that all observations are for years that have actually elapsed. The `final_data`set contains one observation for each country per year, with its corresponding rates of `child_mortality` and `emissions`.
-
-```{r results='hide', message=FALSE, warning=FALSE}
+# Join the data sets
 
 final_data <- child_mort_long %>%
-  inner_join(co2_long, by = c("year", "country"))
-
-final_data$child_mortality <- as.numeric(as.character(final_data$child_mortality))
-final_data$emissions <- as.numeric(as.character(final_data$emissions))
+  inner_join(co2_long, by = c("year", "country")) %>%
+  mutate(
+    child_mortality = as.numeric(as.character(child_mortality)),
+    emissions = as.numeric(as.character(emissions))
+  )
 
 ```
 
