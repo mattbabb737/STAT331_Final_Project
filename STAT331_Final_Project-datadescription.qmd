@@ -136,7 +136,6 @@ Each facet in the above plot clearly shows that the global correlation between `
 To further assess the relationship between mean_child_mortality and mean_emissions, a scatterplot was created with each point representing both values for each country averaged across all years in the final_data set. A line of best fit was overlaid, showing a clear negative correlation. This suggests that, on average, countries with higher emissions tend to have lower child mortality rates, or vice versa. 
 
 ```{r}
-
 final_data %>%
   group_by(country) %>%
   summarise(
@@ -151,6 +150,26 @@ final_data %>%
   geom_smooth(method = "lm", color = "blue") +
   scale_x_log10()
 
+```
+
+
+```{r}
+final_data %>%
+  group_by(year) %>%
+  summarise(
+    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
+    mean_emissions = mean(emissions, na.rm = TRUE)
+  ) %>%
+  mutate(period = 25 * floor((year - 1800) / 25) + 1800) %>%
+  ggplot(aes(x = mean_emissions, y = mean_child_mortality, color = as.factor(period))) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Mean Emissions (Log Transformed)", y = "Mean Child Mortality",
+       title = "Scatter Plot of Mean Child Mortality vs Mean Emissions by Period",
+       color = "Period") +
+  geom_smooth(method = "lm", color = "blue") +
+  scale_x_log10() +
+  scale_color_viridis_d()
 ```
 
 
