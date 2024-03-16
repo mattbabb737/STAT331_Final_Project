@@ -203,14 +203,11 @@ final_data_lm %>%
 predictions <- predict(final_data_lm)
 st_error <- sigma(final_data_lm)
 
-
-plot_data <- data.frame(predicted = predictions,
-                        residuals = rnorm(length(predictions), mean = 0, sd = st_error))
-
-
-ggplot(plot_data, aes(x = predicted, y = residuals)) +
-  geom_point()
-
+predictions %>%
+  data.frame(predicted = .) %>%
+  mutate(residuals = rnorm(n(), mean = 0, sd = st_error)) %>%
+  ggplot(aes(x = predicted, y = residuals)) +
+    geom_point()
 ```
 
 ## Simulation Function
