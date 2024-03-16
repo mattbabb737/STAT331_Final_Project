@@ -213,7 +213,7 @@ ggplot(plot_data, aes(x = predicted, y = residuals)) +
 
 ## Simulation Function
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 noise <- function(x, mean = 0, sd) {
   return(x + rnorm(length(x),
             mean,
@@ -229,6 +229,10 @@ simulations <- map_dfc(.x = 1:1000,
                                     )
                        )
 
+
+```
+
+```{r}
 colnames(simulations) <- colnames(simulations) |> 
   str_replace(pattern = "\\.\\.\\.",
                   replace = "_")
@@ -242,6 +246,9 @@ binded_simulations <- yearly_means |>
 
 head(binded_simulations)
 
+```
+
+```{r warning=FALSE}
 simulated_r_sq <- binded_simulations |>
   map(~ lm(mean_child_mortality ~ .x, data = binded_simulations)
       ) |>
