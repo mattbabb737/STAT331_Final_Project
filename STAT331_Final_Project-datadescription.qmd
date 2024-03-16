@@ -232,7 +232,7 @@ simulations <- map_dfc(.x = 1:1000,
 
 ```
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 colnames(simulations) <- colnames(simulations) |> 
   str_replace(pattern = "\\.\\.\\.",
                   replace = "_")
