@@ -133,6 +133,7 @@ Each facet in the above plot clearly shows that the global correlation between `
 
 ### Linear Regression
 
+To further assess the relationship between mean_child_mortality and mean_emissions, a scatterplot was created with each point representing both values for each country averaged across all years in the final_data set. A line of best fit was overlaid, showing a clear negative correlation. This suggests that, on average, countries with higher emissions tend to have lower child mortality rates, or vice versa. 
 
 ```{r}
 
