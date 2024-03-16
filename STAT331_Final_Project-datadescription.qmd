@@ -10,7 +10,7 @@ message: false
 
 ## Load the data
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 library(tidyverse)
 
 child_mortality_data <- read.csv(here::here("child_mortality_0_5_year_olds_dying_per_1000_born.csv"))
@@ -73,7 +73,7 @@ child_mort_long <- child_mort_long %>%
 
 The `child_mort_long` data set and the `co2_long` data set were joined to create a new data set called `final_data`, which will be our primary data set for the rest of the project. Using `inner_join`, we were able to constrain the data just to the years 1800 -- 2022, so that all observations are for years that have actually elapsed. The `final_data`set contains one observation for each country per year, with its corresponding rates of `child_mortality` and `emissions`.
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 final_data <- child_mort_long %>%
   inner_join(co2_long, by = c("year", "country"))
 
@@ -205,9 +205,6 @@ plot_data <- data.frame(predicted = predictions,
 
 ggplot(plot_data, aes(x = predicted, y = residuals)) +
   geom_point()
-
-#We need to generate the same plot with the prediction w/ errors as in check point 2
-
 
 ```
 
