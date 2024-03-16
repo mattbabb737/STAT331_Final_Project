@@ -133,9 +133,12 @@ Each facet in the above plot clearly shows that the global correlation between `
 
 ### Linear Regression
 
-To further assess the relationship between mean_child_mortality and mean_emissions, a scatterplot was created with each point representing both values for each country averaged across all years in the final_data set. A line of best fit was overlaid, showing a clear negative correlation. This suggests that, on average, countries with higher emissions tend to have lower child mortality rates, or vice versa. 
+To evaluate the relationship between mean_child_mortality and mean_emissions, the final_data set was processed to compute yearly global averages for these variables, resulting in a dataset named yearly_means. Then, a scatterplot was generated, where each point represents the global averages for a given year. An overlaid line of best fit reveals a pronounced negative correlation, indicating that years with higher emissions are generally associated with lower child mortality rates, and vice versa.
 
 ```{r}
+
+# NEED TO DISCUSS - THIS PLOT USES THE WRONG VARIABLES
+
 final_data %>%
   group_by(country) %>%
   summarise(
@@ -154,12 +157,16 @@ final_data %>%
 
 
 ```{r}
-final_data %>%
+
+yearly_means <- final_data %>%
   group_by(year) %>%
   summarise(
     mean_child_mortality = mean(child_mortality, na.rm = TRUE),
     mean_emissions = mean(emissions, na.rm = TRUE)
-  ) %>%
+  )
+
+
+yearly_means %>%
   mutate(period = 25 * floor((year - 1800) / 25) + 1800) %>%
   ggplot(aes(x = mean_emissions, y = mean_child_mortality, color = as.factor(period))) +
   geom_point() +
@@ -170,24 +177,13 @@ final_data %>%
   geom_smooth(method = "lm", color = "blue") +
   scale_x_log10() +
   scale_color_viridis_d()
-```
-
-
-```{r}
-
-yearly_means <- final_data %>%
-  group_by(year) %>%
-  summarise(
-    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
-    mean_emissions = mean(emissions, na.rm = TRUE)
-  )
 
 ```
+### Linear Model
 
+To extract the linear equation from the above plot, a linear model was created with `mean_emissions` as the explanatory variable, and `mean_child_mortality` as the response variable. The resulting table shows the linear analysis.
 
-## Linear Model
-
-Our explanatory variable is `mean_emissions`, and our response variable is `mean_child_mortality`.
+The regression equation for the model is $\hat{y}=403.29298−74.17116⋅x$, where $\hat{y}$ is equal to the estimated mean_child_mortality, and $x$ is equal to the mean_emissions.
 
 ```{r}
 
@@ -198,7 +194,7 @@ tidy(final_data_lm)
 
 ```
 
-## Fit?
+### Assessing appropriateness of fit
 
 ```{r}
 
