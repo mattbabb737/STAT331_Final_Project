@@ -177,19 +177,27 @@ ggplot(aes(x = .fitted, y = .resid)) +
 The Adjusted R-squared was 0.9476 for the data indicating that close to 95% of the variability in mean child mortality can be explained by mean CO2 emissions. This indicates that the model is a very good fit for the data. The only issue is the plot of the residuals, since the residuals do not have a random distribution and seem to follow a pattern. This could indicate that the relationship between CO2 emissions and child mortality is non-linear and could lead to issues with other tests on the data.
 
 ```{r}
-augmented_data <- augment(final_data_lm)
 
-response_variance <- var(augmented_data$mean_child_mortality, na.rm = TRUE)
-
-fitted_variance <- var(augmented_data$.fitted, na.rm = TRUE)
-residuals_variance <- var(augmented_data$.resid, na.rm = TRUE)
-
-variance_summary <- tibble(
-  Metric = c("Variance of Response", "Variance of Fitted Values", "Variance of Residuals"),
-  Variance = c(response_variance, fitted_variance, residuals_variance)
-)
-
-variance_summary
+final_data_lm %>%
+  augment() %>%
+  summarise(
+    response_variance = var(mean_child_mortality, na.rm = TRUE),
+    fitted_variance = var(.fitted, na.rm = TRUE),
+    residuals_variance = var(.resid, na.rm = TRUE)
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to = "Metric",
+    values_to = "Variance"
+  ) %>%
+  mutate(
+    Metric = case_when(
+      Metric == "response_variance" ~ "Variance of Response",
+      Metric == "fitted_variance" ~ "Variance of Fitted Values",
+      Metric == "residuals_variance" ~ "Variance of Residuals",
+      TRUE ~ Metric # Fallback, should not be needed
+    )
+  )
 
 ```
 
