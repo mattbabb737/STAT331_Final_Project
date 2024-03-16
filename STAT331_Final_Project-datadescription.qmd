@@ -11,13 +11,13 @@ message: false
 ## Load the data
 
 ```{r results='hide', message=FALSE, warning=FALSE}
+
 library(tidyverse)
 library(broom)
 
 child_mortality_data <- read.csv(here::here("child_mortality_0_5_year_olds_dying_per_1000_born.csv"))
 
 co2_pcap_cons <- read.csv(here::here("co2_pcap_cons.csv"))
-
 
 ```
 
@@ -42,6 +42,7 @@ To make the `child_mortality_data`set usable for analysis, we re-designated all 
 Similarly, to make the `co2_pcap_cons` data set usable for analysis, we followed the same series of steps to convert all of the years into numeric variables, free of "X"s, and created a new longer data set that contains one observation for each country per year, along with its associated \`emissions\` value. This new data set is called \`co2_long\`.
 
 ```{r}
+
 co2_long <- co2_pcap_cons %>%
   mutate(across(matches("^X(18|19|20)\\d{2}$"), as.character)) %>% 
   pivot_longer(
@@ -57,6 +58,7 @@ co2_long <- co2_long %>%
 ```
 
 ```{r}
+
 child_mort_long <- child_mortality_data %>%
   mutate(across(matches("^X(18|19|20|21)\\d{2}$"), as.character)) %>% 
   pivot_longer(
@@ -68,6 +70,7 @@ child_mort_long <- child_mortality_data %>%
 child_mort_long <- child_mort_long %>%
   mutate(year = str_remove(year, "^X")) |>
   mutate(year = as.numeric(year))
+
 ```
 
 ## Join the data
@@ -75,16 +78,19 @@ child_mort_long <- child_mort_long %>%
 The `child_mort_long` data set and the `co2_long` data set were joined to create a new data set called `final_data`, which will be our primary data set for the rest of the project. Using `inner_join`, we were able to constrain the data just to the years 1800 -- 2022, so that all observations are for years that have actually elapsed. The `final_data`set contains one observation for each country per year, with its corresponding rates of `child_mortality` and `emissions`.
 
 ```{r results='hide', message=FALSE, warning=FALSE}
+
 final_data <- child_mort_long %>%
   inner_join(co2_long, by = c("year", "country"))
 
 final_data$child_mortality <- as.numeric(as.character(final_data$child_mortality))
 final_data$emissions <- as.numeric(as.character(final_data$emissions))
+
 ```
 
 ## Mean `emissions` and `child_mortality` by `country`
 
 ```{r}
+
 summary_table <- final_data %>%
   group_by(country) %>%
   summarise(
@@ -98,6 +104,7 @@ summary_table
 ## Linear Regression
 
 ```{r}
+
 ggplot(summary_table, aes(x = mean_emissions,
                           y = mean_child_mortality)) +
   geom_point() + 
@@ -112,12 +119,14 @@ ggplot(summary_table, aes(x = mean_emissions,
 ## Over time
 
 ```{r}
+
 yearly_means <- final_data %>%
   group_by(year) %>%
   summarise(
     mean_child_mortality = mean(child_mortality, na.rm = TRUE),
     mean_emissions = mean(emissions, na.rm = TRUE)
   )
+
 ```
 
 ```{r}
@@ -130,6 +139,7 @@ final_data <- final_data %>%
                                  "2013-2022"),
                       include.lowest = TRUE))
 
+
 final_data_means <- final_data %>%
   filter(!is.na(Decade)) %>%
   group_by(country, Decade) %>%
@@ -138,6 +148,7 @@ final_data_means <- final_data %>%
     mean_child_mortality = mean(child_mortality, na.rm = TRUE),
     .groups = 'drop'
   )
+
 
 ggplot(final_data_means, aes(x = mean_emissions,
                              y = mean_child_mortality)) +
@@ -156,19 +167,23 @@ ggplot(final_data_means, aes(x = mean_emissions,
 Our explanatory variable is `mean_emissions`, and our response variable is `mean_child_mortality`.
 
 ```{r}
+
 final_data_lm <- lm(mean_child_mortality ~ mean_emissions,
                     data = yearly_means)
 
 tidy(final_data_lm)
+
 ```
 
 ## Fit?
 
 ```{r}
+
 final_data_lm |> 
   augment() |> 
 ggplot(aes(x = .fitted, y = .resid)) +
   geom_point()
+
 ```
 
 The Adjusted R-squared was 0.9476 for the data indicating that close to 95% of the variability in mean child mortality can be explained by mean CO2 emissions. This indicates that the model is a very good fit for the data. The only issue is the plot of the residuals, since the residuals do not have a random distribution and seem to follow a pattern. This could indicate that the relationship between CO2 emissions and child mortality is non-linear and could lead to issues with other tests on the data.
@@ -220,18 +235,15 @@ noise <- function(x, mean = 0, sd) {
          )
 }
 
-
-
 simulations <- map_dfc(.x = 1:1000,
                        .f = ~tibble(simulation = noise(predictions,
                                                        sd = st_error)
                                     )
                        )
-
-
 ```
 
 ```{r results='hide', message=FALSE, warning=FALSE}
+
 colnames(simulations) <- colnames(simulations) |> 
   str_replace(pattern = "\\.\\.\\.",
                   replace = "_")
@@ -248,6 +260,7 @@ head(binded_simulations)
 ```
 
 ```{r warning=FALSE}
+
 simulated_r_sq <- binded_simulations |>
   map(~ lm(mean_child_mortality ~ .x, data = binded_simulations)
       ) |>
