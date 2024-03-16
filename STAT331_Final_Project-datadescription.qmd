@@ -1,16 +1,20 @@
 ---
 title: "STAT331_Final_Project"
 author: "Justus Nunez, Daniel Alvarez, Matt Babb, Maya Doitch"
-format: html
-output:
-  html_document:
+format: 
+  html:
+    self-contained: true
+    code-tools: true
     toc: true
-    toc_float: true
-    toc_depth: 3
 editor: visual
 self-contained: true
 code-fold: true
 message: false
+execute: 
+  error: true
+  echo: true
+  message: false
+  warning: false
 ---
 
 ## Load the data
