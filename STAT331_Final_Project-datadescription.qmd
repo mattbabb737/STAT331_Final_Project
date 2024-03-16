@@ -12,6 +12,7 @@ message: false
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 library(tidyverse)
+library(broom)
 
 child_mortality_data <- read.csv(here::here("child_mortality_0_5_year_olds_dying_per_1000_born.csv"))
 
@@ -159,8 +160,6 @@ final_data_lm <- lm(mean_child_mortality ~ mean_emissions,
                     data = yearly_means)
 
 summary(final_data_lm)
-
-library(broom)
 
 tidy(final_data_lm)
 ```
