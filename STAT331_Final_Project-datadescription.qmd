@@ -131,34 +131,27 @@ Each facet in the above plot clearly shows that the global correlation between `
 
 ## III. Analysis
 
+### Linear Regression
+
+
 ```{r}
 
-summary_table <- final_data %>%
+final_data %>%
   group_by(country) %>%
   summarise(
     mean_child_mortality = mean(child_mortality, na.rm = TRUE),
     mean_emissions = mean(emissions, na.rm = TRUE)
-  )
-
-summary_table
-```
-
-## Linear Regression
-
-```{r}
-
-ggplot(summary_table, aes(x = mean_emissions,
-                          y = mean_child_mortality)) +
-  geom_point() + 
+  ) %>%
+  ggplot(aes(x = mean_emissions, y = mean_child_mortality)) +
+  geom_point() +
   theme_bw() +
-  labs(x = "Mean Emissions", y = "", 
+  labs(x = "Mean Emissions (Log Transformed)", y = "", 
        title = "Scatter Plot of Mean Child Mortality vs Mean Emissions by Country") +
   geom_smooth(method = "lm", color = "blue") +
   scale_x_log10()
 
 ```
 
-## Over time
 
 ```{r}
 
