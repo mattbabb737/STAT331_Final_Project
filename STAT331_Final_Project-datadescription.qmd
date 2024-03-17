@@ -672,14 +672,16 @@ means_data <- final_data %>%
   ungroup()  
 
 
-
 means_data_kable <- kable(means_data, "html", escape = FALSE) %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = F, position = "left") %>%
   scroll_box(width = "100%", height = "500px")
 
 
 means_data_kable
+```
 
+
+```{r}
 final_data <- final_data %>%
   mutate(Decade = cut(year, breaks = seq(1953, 2023, 10), 
                       labels = c("1953-1962", "1963-1972",
@@ -708,7 +710,10 @@ ggplot(final_data_means, aes(x = mean_emissions,
        y = "") +
   scale_x_log10() +
   theme_bw()
+```
 
+
+```{r}
 # Snapshot Scatterplot
 
 means_data %>%
@@ -718,14 +723,20 @@ means_data %>%
   labs(x = "Log of Mean Emissions", y = "", 
        title = "Scatter Plot of Mean Child Mortality vs Log of Mean Emissions by Country") +
   geom_smooth(method = "lm", color = "blue")
+```
 
+
+```{r}
 # New linear model
 
 means_data_lm <- lm(mean_child_mortality ~ log_mean_emissions,
                     data = means_data)
 
 tidy(means_data_lm)
+```
 
+
+```{r}
 # New scatterplot and histogram for residuals
 
 means_data_lm %>%  
@@ -741,7 +752,10 @@ means_data_lm %>%
     labs(x = "Residuals", y = "Density",
          title = "Histogram of Residuals with Normal Density Curve") +
     theme_bw()
+```
 
+
+```{r}
 # New variances table
 
 means_data_lm %>%
@@ -764,7 +778,10 @@ means_data_lm %>%
       TRUE ~ Metric # Fallback, should not be needed
     )
   )
+```
 
+
+```{r}
 predictions_means <- predict(means_data_lm)
 
 # Generate simulated residuals
@@ -779,12 +796,17 @@ ggplot(simulated_data_means, aes(x = predicted, y = residuals)) +
   theme_bw() +
   labs(x = "Predicted Values", y = "Simulated Response Values",
        title = "Simulated Response Values vs. Predicted Values")
+```
 
 
+```{r}
 noise <- function(x, mean = 0, sd) {
   return(x + rnorm(length(x), mean, sd))
 }
+```
 
+
+```{r}
 # Generate 1000 simulations
 st_error_means <- sigma(means_data_lm)
 
