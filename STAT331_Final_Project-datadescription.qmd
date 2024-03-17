@@ -301,7 +301,7 @@ r_yearly <- yearly_means %>%
 
 glance(final_data_lm)
 ```
-**1. Linearity:** 
+**1. Linearity:**  
 By looking at the above scatterplot from section III.a, a clear linear pattern is evident. The Pearson's correlation coefficient (r) is `r r_yearly`. Given these observations, the first criteria failed to be violated.
 
 
