@@ -214,6 +214,8 @@ tidy(final_data_lm)
 
 ```
 
+-------------------------------------------------------------------------------
+
 ### Test
 
 ```{r}
@@ -283,6 +285,7 @@ ggplot(simulated_data_log, aes(x = predicted, y = simulated_child_mortality)) +
 
 ## End of Test
 
+-------------------------------------------------------------------------------
 
 ### b. Assessing appropriateness of fit
 
