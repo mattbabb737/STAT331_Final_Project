@@ -183,7 +183,7 @@ means_data %>%
 ```
 To extract the linear equation from the above plot, a linear model was created with `log_mean_emissions` as the explanatory variable, and `mean_child_mortality` as the response variable. The resulting table shows the linear analysis.
 
-The regression equation for the model is $\hat{y}=259.55042−31.34446⋅x$, where $\hat{y}$ is equal to the estimated `mean_child_mortality`, and $x$ is equal to the `log_mean_emissions`. The coefficient for `log_mean_emissions` indicates that for a one unit increase in the log-transformed emissions, the `mean_child_mortality` is expected to decrease by approximately 31.34446 units, holding all else constant. The intercept term of $259.55042$ represents the estimated `mean_child_mortality` when `log_mean_emissions` is zero.
+The regression equation for the model is $\hat{y}=259.55042−31.34446⋅x$, where $\hat{y}$ is equal to the estimated `mean_child_mortality`, and $x$ is equal to the `log_mean_emissions`. The coefficient for `log_mean_emissions` indicates that for a one unit increase in the log-transformed emissions (meausred in tonnes), the `mean_child_mortality` is expected to decrease by approximately 31.34446 units, holding all else constant. The intercept term of $259.55042$ represents the estimated `mean_child_mortality` when `log_mean_emissions` is zero.
 
 ```{r}
 # New linear model
