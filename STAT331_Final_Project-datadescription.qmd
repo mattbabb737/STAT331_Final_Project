@@ -474,6 +474,40 @@ means_data_kable
 ```
 
 ```{r}
+# Over time scatterplot
+
+final_data <- final_data %>%
+  mutate(Decade = cut(year, breaks = seq(1953, 2023, 10), 
+                      labels = c("1953-1962", "1963-1972",
+                                 "1973-1982", "1983-1992",
+                                 "1993-2002", "2003-2012",
+                                 "2013-2022"),
+                      include.lowest = TRUE))
+
+
+final_data_means <- final_data %>%
+  filter(!is.na(Decade)) %>%
+  group_by(country, Decade) %>%
+  summarize(
+    mean_emissions = mean(emissions, na.rm = TRUE),
+    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
+    .groups = 'drop'
+  )
+
+
+ggplot(final_data_means, aes(x = mean_emissions,
+                             y = mean_child_mortality)) +
+  geom_point() +
+  facet_wrap(Decade ~ ., scales = "free") + 
+  labs(title = "Mean Child Mortality vs. Mean Emissions Over Decades (1953 - 2022)",
+       x = "Mean Emissions Per Capita (Log Transformed)",
+       y = "") +
+  scale_x_log10() +
+  theme_bw()
+```
+
+
+```{r}
 
 # Snapshot Scatterplot
 
@@ -485,5 +519,312 @@ means_data %>%
        title = "Scatter Plot of Mean Child Mortality vs Log of Mean Emissions by Country") +
   geom_smooth(method = "lm", color = "blue")
 
+```
+```{r}
+
+# New linear model
+
+means_data_lm <- lm(mean_child_mortality ~ log_mean_emissions,
+                    data = means_data)
+
+tidy(means_data_lm)
+```
+```{r}
+# New scatterplot and histogram for residuals
+
+means_data_lm %>%  
+  augment() %>%  
+ggplot(aes(x = .fitted, y = .resid)) +
+  geom_point()
+
+means_data_lm %>%
+  augment() %>%
+  ggplot(aes(x = .resid)) +
+    geom_histogram(aes(y = ..density..), colour = "black", fill = "white") + # Removed binwidth
+    geom_density(alpha = .2, fill = "#FF6666") +
+    labs(x = "Residuals", y = "Density",
+         title = "Histogram of Residuals with Normal Density Curve") +
+    theme_bw()
+
+```
+```{r}
+
+# New variances table
+
+means_data_lm %>%
+  augment() %>%
+  summarise(
+    response_variance = var(mean_child_mortality, na.rm = TRUE),
+    fitted_variance = var(.fitted, na.rm = TRUE),
+    residuals_variance = var(.resid, na.rm = TRUE)
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to = "Metric",
+    values_to = "Variance"
+  ) %>%
+  mutate(
+    Metric = case_when(
+      Metric == "response_variance" ~ "Variance of Response",
+      Metric == "fitted_variance" ~ "Variance of Fitted Values",
+      Metric == "residuals_variance" ~ "Variance of Residuals",
+      TRUE ~ Metric # Fallback, should not be needed
+    )
+  )
+```
+
+
+```{r}
+predictions_means <- predict(means_data_lm)
+st_error_means <- sigma(means_data_lm)
+
+predictions_means %>%
+  data.frame(predicted = .) %>%
+  mutate(residuals = rnorm(n(), mean = 0, sd = st_error_means)) %>%
+  ggplot(aes(x = predicted, y = residuals)) +
+    geom_point() +
+  theme_bw() +
+  labs(x = "Predicted values", y = "",
+       title = "Residuals vs. Predicted Values")
+```
+
+## Start of new simulation
+
+```{r}
+predictions_means <- predict(means_data_lm)
+
+# Generate simulated residuals
+simulated_residuals_means <- rnorm(length(predictions_means), mean = 0, sd = sigma(means_data_lm))
+
+# Create a dataframe with predicted values and simulated residuals
+simulated_data_means <- data.frame(predicted = predictions_means, residuals = simulated_residuals_means)
+
+# Plot simulated residuals vs predicted values to assess variance
+ggplot(simulated_data_means, aes(x = predicted, y = residuals)) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Predicted Values", y = "Simulated Response Values",
+       title = "Simulated Response Values vs. Predicted Values")
+```
+```{r}
+noise <- function(x, mean = 0, sd) {
+  return(x + rnorm(length(x), mean, sd))
+}
+
+# Generate 1000 simulations
+simulations_means <- map_dfc(.x = 1:1000,
+                       .f = ~tibble(simulation = noise(predictions_means,
+                                                       sd = st_error_means)
+                                    )
+                       )
+```
+
+```{r}
+
+colnames(simulations_means) <- str_replace(colnames(simulations_means), pattern = "\\.{3}", replace = "_")
+
+binded_simulations_means <- means_data %>%
+  filter(!is.na(mean_child_mortality), !is.na(log_mean_emissions)) %>%
+  select(country, mean_child_mortality, log_mean_emissions) %>%
+  bind_cols(simulations_means)
+
+
+head(binded_simulations_means)
+
+```
+```{r}
+
+simulation_cols_means <- names(binded_simulations_means)[-(1:3)]
+
+simulated_r_sq_means <- map_dbl(simulation_cols_means, ~ {
+  formula <- as.formula(paste("mean_child_mortality ~", .x))
+  model <- lm(formula, data = binded_simulations_means)
+  summary(model)$r.squared
+})
+
+tibble(simulations = simulated_r_sq_means) %>%
+  ggplot(aes(x = simulations)) + 
+    geom_histogram(binwidth = 0.001, color = "black", fill = "skyblue") +
+    labs(x = expression("Simulated"~ R^2),
+         y = "Frequency",
+         subtitle = "Histogram of Simulated R-squared Values") +
+    theme_bw() +
+    scale_y_continuous()
+```
+
+## Everything in one chunk for GPT
+
+```{r}
+library(knitr)
+library(kableExtra)
+
+# Averaging across all years for each country
+
+means_data <- final_data %>%
+  group_by(country) %>%
+  summarise(
+    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
+    mean_emissions = mean(emissions, na.rm = TRUE)  
+  ) %>%
+  mutate(
+    log_mean_emissions = log(mean_emissions)
+  ) %>%
+  ungroup()  
+
+
+
+means_data_kable <- kable(means_data, "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = F, position = "left") %>%
+  scroll_box(width = "100%", height = "500px")
+
+
+means_data_kable
+
+final_data <- final_data %>%
+  mutate(Decade = cut(year, breaks = seq(1953, 2023, 10), 
+                      labels = c("1953-1962", "1963-1972",
+                                 "1973-1982", "1983-1992",
+                                 "1993-2002", "2003-2012",
+                                 "2013-2022"),
+                      include.lowest = TRUE))
+
+
+final_data_means <- final_data %>%
+  filter(!is.na(Decade)) %>%
+  group_by(country, Decade) %>%
+  summarize(
+    mean_emissions = mean(emissions, na.rm = TRUE),
+    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
+    .groups = 'drop'
+  )
+
+
+ggplot(final_data_means, aes(x = mean_emissions,
+                             y = mean_child_mortality)) +
+  geom_point() +
+  facet_wrap(Decade ~ ., scales = "free") + 
+  labs(title = "Mean Child Mortality vs. Mean Emissions Over Decades (1953 - 2022)",
+       x = "Mean Emissions Per Capita (Log Transformed)",
+       y = "") +
+  scale_x_log10() +
+  theme_bw()
+
+# Snapshot Scatterplot
+
+means_data %>%
+  ggplot(aes(x = log_mean_emissions, y = mean_child_mortality)) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Log of Mean Emissions", y = "", 
+       title = "Scatter Plot of Mean Child Mortality vs Log of Mean Emissions by Country") +
+  geom_smooth(method = "lm", color = "blue")
+
+# New linear model
+
+means_data_lm <- lm(mean_child_mortality ~ log_mean_emissions,
+                    data = means_data)
+
+tidy(means_data_lm)
+
+# New scatterplot and histogram for residuals
+
+means_data_lm %>%  
+  augment() %>%  
+ggplot(aes(x = .fitted, y = .resid)) +
+  geom_point()
+
+means_data_lm %>%
+  augment() %>%
+  ggplot(aes(x = .resid)) +
+    geom_histogram(aes(y = ..density..), colour = "black", fill = "white") + # Removed binwidth
+    geom_density(alpha = .2, fill = "#FF6666") +
+    labs(x = "Residuals", y = "Density",
+         title = "Histogram of Residuals with Normal Density Curve") +
+    theme_bw()
+
+# New variances table
+
+means_data_lm %>%
+  augment() %>%
+  summarise(
+    response_variance = var(mean_child_mortality, na.rm = TRUE),
+    fitted_variance = var(.fitted, na.rm = TRUE),
+    residuals_variance = var(.resid, na.rm = TRUE)
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to = "Metric",
+    values_to = "Variance"
+  ) %>%
+  mutate(
+    Metric = case_when(
+      Metric == "response_variance" ~ "Variance of Response",
+      Metric == "fitted_variance" ~ "Variance of Fitted Values",
+      Metric == "residuals_variance" ~ "Variance of Residuals",
+      TRUE ~ Metric # Fallback, should not be needed
+    )
+  )
+
+predictions_means <- predict(means_data_lm)
+
+# Generate simulated residuals
+simulated_residuals_means <- rnorm(length(predictions_means), mean = 0, sd = sigma(means_data_lm))
+
+# Create a dataframe with predicted values and simulated residuals
+simulated_data_means <- data.frame(predicted = predictions_means, residuals = simulated_residuals_means)
+
+# Plot simulated residuals vs predicted values to assess variance
+ggplot(simulated_data_means, aes(x = predicted, y = residuals)) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Predicted Values", y = "Simulated Response Values",
+       title = "Simulated Response Values vs. Predicted Values")
+
+
+noise <- function(x, mean = 0, sd) {
+  return(x + rnorm(length(x), mean, sd))
+}
+
+# Generate 1000 simulations
+st_error_means <- sigma(means_data_lm)
+
+# Simulate the response variable
+simulated_response_means <- map_dfc(.x = 1:1000, .f = ~ {
+  tibble(
+    simulated_child_mortality = noise(
+      x = predict(means_data_lm, means_data),  # Use the original model predictions as a base
+      sd = st_error_means                      # Add noise based on the model's standard error
+    )
+  )
+})
+
+# Now, bind the simulated response with the original predictor
+binded_simulations_means <- means_data %>%
+  select(country, log_mean_emissions) %>%
+  bind_cols(simulated_response_means)
+
+# Iterate over each simulation to calculate R-squared values
+new_col_names <- c("country", "log_mean_emissions", paste("simulated_child_mortality", 1:1000, sep = "_"))
+names(binded_simulations_means) <- new_col_names
+
+# Now we can run the map_dbl to calculate R-squared values
+simulated_r_sq_means <- map_dbl(1:1000, ~ {
+  # Extract the simulated response for this iteration
+  col_name <- paste("simulated_child_mortality", .x, sep = "_")
+  # Fit the linear model using the simulated response
+  model <- lm(reformulate("log_mean_emissions", response = col_name), data = binded_simulations_means)
+  # Extract R-squared value
+  summary(model)$r.squared
+})
+
+# Plotting the histogram of R-squared values
+tibble(simulations = simulated_r_sq_means) %>%
+  ggplot(aes(x = simulations)) + 
+    geom_histogram(binwidth = 0.001, color = "black", fill = "skyblue") +
+    labs(x = expression("Simulated"~ R^2),
+         y = "Frequency",
+         subtitle = "Histogram of Simulated R-squared Values") +
+    theme_bw() +
+    scale_y_continuous()
 ```
 
