@@ -287,6 +287,9 @@ variance_table
 
 ### d. Simulation
 
+The dual plot below compares observed values from the `means_data` set with simulated data derived from the same statistical characteristics of the original model. There are several points of comparison. Both plots have a concentration of data points within similar ranges of log mean emissions, suggesting that the simulation captures the general scope of the explanatory variable well. What’s more, the shape of the distributions appears consistent between the observed and simulated sets, reinforcing the model's validity for further simulation-based analysis. There are also a few differences, including the fact that the simulated data shows a somewhat wider range and a more pronounced presence of extreme values at both ends. Additionally, the observed data presents a few potential outliers, however they don't appear to be severe enough to significantly skew the overall trend of the distribution.
+
+
 ```{r}
 predictions_means <- predict(means_data_lm)
 
