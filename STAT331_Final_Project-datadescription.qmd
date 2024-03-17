@@ -17,14 +17,6 @@ execute:
   warning: false
 ---
 
-To be incorporated:
-
-The Adjusted R-squared was 0.9476 for the data indicating that close to 95% of the variability in mean child mortality can be explained by mean CO2 emissions. This indicates that the model is a very good fit for the data. The only issue is the plot of the residuals, since the residuals do not have a random distribution and seem to follow a pattern. This could indicate that the relationship between CO2 emissions and child mortality is non-linear and could lead to issues with other tests on the data.
-
-------------------------------------------------
-
-# Fixed components
-
 ## I. Introduction
 
 This report investigated the relationship between child mortality and carbon dioxide emissions per capita over the years of 1800 – 2022. Two data sets were acquired from Gapminder, which is an organization that seeks to educate the world’s transmitters of information with up-to-date facts about many metrics of health, infrastructure, sustainability, and many other crucial topics.
