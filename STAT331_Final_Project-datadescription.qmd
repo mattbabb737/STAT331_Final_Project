@@ -246,8 +246,8 @@ The four criteria of linearity, independence of observations, normality of distr
 
 ### c. Variances and R-squared
 
-A table of variances was created to inform later analyses and simulations. Included in the table are the variance of responses, the variances of the fitted data, and the variance of the residuals.  
-The Adjusted \( R^2 \) for the original model was `r glance(means_data_lm)$adj.r.squared`, indicating that close to `r round(glance(means_data_lm)$adj.r.squared * 100)`% of the variability in mean child mortality can be explained by mean CO2 emissions. This indicates that the model is a decent fit for the data, providing some explanatory power to account for the variation in the data.
+The variance table below provides insight into the model's fit by expressing the total variance in the dependent variable (Variance of Response), the variance explained by the model (Variance of Fitted Values), and the variance not explained by the model (Variance of Residuals). With a Variance of Response at $6729.624$, Variance of Fitted Values at $2457.514$, and Variance of Residuals at $4272.109$, we can calculate the proportion of the total variance explained by the model.  
+The adjusted $R^2$ value indicates that approximately `r round(glance(means_data_lm)$adj.r.squared * 100)`% of the variability in mean child mortality can be explained by mean CO2 emissions. This suggests that the model has decent explanatory power, though there still remains a significant proportion of variance unaccounted for.
 
 
 ```{r results='hide', message=FALSE, warning=FALSE}
