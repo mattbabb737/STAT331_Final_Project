@@ -359,7 +359,10 @@ predictions %>%
   data.frame(predicted = .) %>%
   mutate(residuals = rnorm(n(), mean = 0, sd = st_error)) %>%
   ggplot(aes(x = predicted, y = residuals)) +
-    geom_point()
+    geom_point() +
+  theme_bw() +
+  labs(x = "Predicted values", y = "",
+       title = "Residuals vs. Predicted Values")
 ```
 
 ### c. Simulation
