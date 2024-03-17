@@ -317,14 +317,12 @@ ggplot(combined_data, aes(x = log_mean_emissions, y = mortality_value)) +
 ```
 
 
+
 ```{r}
 noise <- function(x, mean = 0, sd) {
   return(x + rnorm(length(x), mean, sd))
 }
-```
 
-
-```{r}
 # Generate 1000 simulations
 st_error_means <- sigma(means_data_lm)
 
