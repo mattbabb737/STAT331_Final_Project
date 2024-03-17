@@ -450,13 +450,19 @@ Ranganathan et al., 2015 https://www.nature.com/articles/palcomms201533
 library(knitr)
 library(kableExtra)
 
+# Averaging across all years for each country
+
 means_data <- final_data %>%
   group_by(country) %>%
   summarise(
     mean_child_mortality = mean(child_mortality, na.rm = TRUE),
-    mean_emissions = mean(emissions, na.rm = TRUE)
+    mean_emissions = mean(emissions, na.rm = TRUE)  
   ) %>%
-  ungroup() 
+  mutate(
+    log_mean_emissions = log(mean_emissions)
+  ) %>%
+  ungroup()  
+
 
 
 means_data_kable <- kable(means_data, "html", escape = FALSE) %>%
@@ -465,5 +471,19 @@ means_data_kable <- kable(means_data, "html", escape = FALSE) %>%
 
 
 means_data_kable
+```
+
+```{r}
+
+# Snapshot Scatterplot
+
+means_data %>%
+  ggplot(aes(x = log_mean_emissions, y = mean_child_mortality)) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Log of Mean Emissions", y = "", 
+       title = "Scatter Plot of Mean Child Mortality vs Log of Mean Emissions by Country") +
+  geom_smooth(method = "lm", color = "blue")
+
 ```
 
