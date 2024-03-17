@@ -194,7 +194,7 @@ yearly_means %>%
   ggplot(aes(x = mean_emissions, y = mean_child_mortality, color = as.factor(period))) +
   geom_point() +
   theme_bw() +
-  labs(x = "Mean Emissions (Log Transformed)", y = "Mean Child Mortality",
+  labs(x = "Mean Emissions", y = "Mean Child Mortality",
        title = "Scatter Plot of Mean Child Mortality vs Mean Emissions by Period",
        color = "Period") +
   geom_smooth(method = "lm", color = "blue") +
