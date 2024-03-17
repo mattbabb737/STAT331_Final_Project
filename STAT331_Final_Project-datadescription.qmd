@@ -102,7 +102,7 @@ final_data <- child_mort_long %>%
 
 ### b. Exploratory analysis
 
-In order to get a sense of how these two variables relate over time, child_mortality and emissions (log transformed) for each country were averaged for each decade starting from the year 1953 through the year 2022. A new variable called Decade was created for this purpose. The resulting mean values are represented in the faceted plot below. Each point represents the mean values over a decade of `child_mortality` and `emissions` per capita for a single country. 
+In order to get a sense of how these two variables have related over time, `child_mortality` and `emissions` (log transformed) for each country were averaged for each decade starting from the year 1953 through the year 2022. A new variable called `Decade` was created for this purpose. The resulting mean values are represented in the faceted plot below. Each point represents the mean values over a decade of `child_mortality` and `emissions` per capita for a single country. 
 
 
 ```{r}
@@ -162,13 +162,13 @@ ggplot(final_data_means, aes(x = mean_emissions,
   scale_x_log10() +
   theme_bw()
 ```
-Each facet in the above plot clearly shows that the global correlation between `child_mortality` and `emissions` is negative in every decade since 1953. This consistent pattern supports the hypothesis of an inverse relationship between these variables and provides a solid foundation for further analysis.
+Each facet in the above plot clearly shows that the correlation between `child_mortality` and `emissions` is negative in every decade since 1953. This consistent pattern supports the hypothesis of an inverse relationship between these variables and provides a solid foundation for further analysis.
 
 ## III. Analysis
 
 ### a. Linear regression
 
-To evaluate the relationship between mean_child_mortality and mean_emissions, the final_data set was processed to compute yearly global averages for these variables, resulting in a dataset named yearly_means. Then, a scatterplot was generated, where each point represents the global averages for a given year. An overlaid line of best fit reveals a pronounced negative correlation, indicating that years with higher emissions are generally associated with lower child mortality rates, and vice versa.
+To evaluate the relationship between `mean_child_mortality` and `mean_emissions`, the final_data set was processed to compute averages for these variables with respect to all years in the data set for each country, resulting in a dataset named `means-data`. Then, a scatterplot was generated, where each point represents the averages for a given country An overlaid line of best fit reveals a pronounced negative correlation, indicating that countries with higher emissions are generally associated with lower child mortality rates, and vice versa.
 
 ```{r}
 # Snapshot Scatterplot
@@ -183,7 +183,7 @@ means_data %>%
 ```
 To extract the linear equation from the above plot, a linear model was created with `log_mean_emissions` as the explanatory variable, and `mean_child_mortality` as the response variable. The resulting table shows the linear analysis.
 
-The regression equation for the model is $\hat{y}=259.55042−31.34446⋅x$, where $\hat{y}$ is equal to the estimated mean_child_mortality, and $x$ is equal to the log_mean_emissions. The coefficient for log_mean_emissions indicates that for a one unit increase in the log-transformed emissions, the mean_child_mortality is expected to decrease by approximately 31.34446 units, holding all else constant. The intercept term of 259.55042 represents the estimated mean_child_mortality when log_mean_emissions is zero.
+The regression equation for the model is $\hat{y}=259.55042−31.34446⋅x$, where $\hat{y}$ is equal to the estimated `mean_child_mortality`, and $x$ is equal to the `log_mean_emissions`. The coefficient for `log_mean_emissions` indicates that for a one unit increase in the log-transformed emissions, the `mean_child_mortality` is expected to decrease by approximately 31.34446 units, holding all else constant. The intercept term of $259.55042$ represents the estimated `mean_child_mortality` when `log_mean_emissions` is zero.
 
 ```{r}
 # New linear model
@@ -195,7 +195,7 @@ tidy(means_data_lm)
 ```
 ### b. Assessing appropriateness of fit
 
-In order to conclude with confidence that appropriateness of using a linear regression for this relationship, the four model conditions of linearity, independence, normality of distribution, and equality of variance must be assessed. Each will be discussed in turn:
+In order to conclude with confidence the appropriateness of using a linear regression for this relationship, the four model conditions of linearity, independence, normality of distribution, and equality of variance must be assessed. Each will be discussed in turn:
 
 
 ```{r results='hide', message=FALSE, warning=FALSE}
@@ -215,7 +215,7 @@ By looking at the above scatterplot from section III.a, a clear linear pattern i
 The data were intentionally aggregated to calculate each country's rates of child mortality and emissions per capita, averaging the values without regard to their year of origin. However, considering that each country's data likely has a significant causal influence on the data of nearby countries, this model may be at risk of violating the independence assumption. The nature of the data suggests that observations across countries are not entirely independent, which could impact the validity of the independence assumption in our analysis.
 
 **3. Normality of residuals:**  
-The histogram below displays the distribution of residuals from the model. The distribution is approximately centered around zero, suggesting that the model does not have systematic bias. The overall shape of the distribution approximates a bell curve with a modest left skew. These features do not violate the assumption of normality, especially considering the large sample size.
+The histogram below displays the distribution of residuals from the model. The distribution is approximately centered around zero, suggesting that the model does not have systematic bias. The overall shape of the distribution is bell-shaped with a modest left skew. These features do not violate the assumption of normality, especially considering the large sample size.
 
 
 ```{r}
@@ -231,7 +231,7 @@ means_data_lm %>%
     theme_bw()
 ```
 **4. Equal variance of residuals:**  
-The  scatterplot below depicts the relationship between the residuals and the predicted values, offering a visual check for homoscedasticity within the model. The residuals are scattered around the dashed horizontal reference line with no  discernible pattern that suggests an increase or decrease in their spread with respect to the fitted values. This lack of a distinct pattern indicates a consistent variance across the range of predictions, which fails to violate the assumption of equal variance. This supports the reliability of the linear regression analysis based on the equal variance criterion.
+The  scatterplot below depicts the relationship between the residuals and the predicted values, offering a visual check for homoscedasticity within the model. The residuals are scattered around the dashed horizontal reference line with no discernible pattern that suggests an increase or decrease in their spread with respect to the fitted values. This lack of a distinct pattern indicates a consistent variance across the range of predictions, which fails to violate the assumption of equal variance. This supports the reliability of the linear regression analysis based on the equal variance criterion.
 
 ```{r}
 means_data_lm |> 
