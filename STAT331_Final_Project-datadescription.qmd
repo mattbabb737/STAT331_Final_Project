@@ -442,3 +442,28 @@ tibble(simulations = simulated_r_sq) |>
 ## References
 
 Ranganathan et al., 2015 https://www.nature.com/articles/palcomms201533
+
+------------------------------------------------
+
+## Fixed components
+```{r}
+library(knitr)
+library(kableExtra)
+
+means_data <- final_data %>%
+  group_by(country) %>%
+  summarise(
+    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
+    mean_emissions = mean(emissions, na.rm = TRUE)
+  ) %>%
+  ungroup() 
+
+
+means_data_kable <- kable(means_data, "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = F, position = "left") %>%
+  scroll_box(width = "100%", height = "500px")
+
+
+means_data_kable
+```
+
