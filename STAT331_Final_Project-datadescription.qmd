@@ -132,7 +132,7 @@ ggplot(final_data_means, aes(x = mean_emissions,
   geom_point() +
   facet_wrap(Decade ~ ., scales = "free") + 
   labs(title = "Mean Child Mortality vs. Mean Emissions Over Decades (1953 - 2022)",
-       x = "Mean Emissions Per Capita (Log Transformed)",
+       x = "Mean Emissions Per Capita",
        y = "") +
   theme_bw()
 ```
