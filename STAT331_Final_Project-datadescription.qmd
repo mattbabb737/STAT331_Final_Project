@@ -250,12 +250,15 @@ A table of variances was created to inform later analyses and simulations. Inclu
 The Adjusted \( R^2 \) for the original model was `r glance(means_data_lm)$adj.r.squared`, indicating that close to `r round(glance(means_data_lm)$adj.r.squared * 100)`% of the variability in mean child mortality can be explained by mean CO2 emissions. This indicates that the model is a decent fit for the data, providing some explanatory power to account for the variation in the data.
 
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 glance(means_data_lm)
+```
 
+
+```{r}
 # Variances table
 
-means_data_lm %>%
+variance_table <- means_data_lm %>%
   augment() %>%
   summarise(
     response_variance = var(mean_child_mortality, na.rm = TRUE),
@@ -274,7 +277,12 @@ means_data_lm %>%
       Metric == "residuals_variance" ~ "Variance of Residuals",
       TRUE ~ Metric # Fallback, should not be needed
     )
-  )
+  ) %>%
+  kable("html") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+  column_spec(1, bold = TRUE)
+
+variance_table
 ```
 
 ### d. Simulation
