@@ -199,13 +199,11 @@ In order to conclude with confidence the appropriateness of using a linear regre
 
 
 ```{r results='hide', message=FALSE, warning=FALSE}
+
 r_means <- means_data %>%
   summarize(pearsons_r = cor(log_mean_emissions,
                              mean_child_mortality, method = "pearson"))
 
-
-
-glance(means_data_lm)
 ```
 **1. Linearity:**  
 By looking at the above scatterplot from section III.a, a clear linear pattern is evident. The Pearson's correlation coefficient (r) is `r r_means`. Given these observations, the first criteria failed to be violated.
@@ -243,10 +241,19 @@ means_data_lm |>
        title = "Residuals vs. Fitted Values") +
   theme_minimal()
 ```
+**Determination of fit:**  
+The four criteria of linearity, independence of observations, normality of distribution, and equal variances failed to be violated, granting the claim that adjacent countries do not systematically bias one another's average levels of CO2 emissions per capita. The following steps proceed on the assumption that a linear regression is in fact an appropriate model.
+
+### c. Variances and R-squared
+
+A table of variances was created to inform later analyses and simulations. Included in the table are the variance of responses, the variances of the fitted data, and the variance of the residuals.  
+The Adjusted \( R^2 \) for the original model was `r glance(means_data_lm)$adj.r.squared`, indicating that close to `r round(glance(means_data_lm)$adj.r.squared * 100)`% of the variability in mean child mortality can be explained by mean CO2 emissions. This indicates that the model is a decent fit for the data, providing some explanatory power to account for the variation in the data.
 
 
 ```{r}
-# New variances table
+glance(means_data_lm)
+
+# Variances table
 
 means_data_lm %>%
   augment() %>%
@@ -270,10 +277,7 @@ means_data_lm %>%
   )
 ```
 
-The four criteria of linearity, independence of observations, normality of distribution, and equal variances failed to be violated, granting the claim that adjacent countries do not systematically bias one another's average levels of CO2 emissions per capita. The following steps proceed on the assumption that a linear regression is in fact an appropriate model.
-
-
-### c. Simulation
+### d. Simulation
 
 ```{r}
 predictions_means <- predict(means_data_lm)
