@@ -191,7 +191,13 @@ The regression equation for the model is $\hat{y}=259.55042−31.34446⋅x$, whe
 means_data_lm <- lm(mean_child_mortality ~ log_mean_emissions,
                     data = means_data)
 
-tidy(means_data_lm)
+tidy_lm <- tidy(means_data_lm)
+
+# Use kable to create a nice-looking table
+kable_lm <- kable(tidy_lm, format = "html", caption = "Summary of Linear Model", digits = 4)
+
+# To display the table in R Markdown
+kable_lm
 ```
 ### b. Assessing appropriateness of fit
 
