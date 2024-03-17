@@ -289,7 +289,8 @@ ggplot(simulated_data_log, aes(x = predicted, y = simulated_child_mortality)) +
 
 ### b. Assessing appropriateness of fit
 
-[text here]
+In order to conclude with confidence that appropriateness of using a linear regression for this relationship, the four model conditions of linearity, independence, normality of distribution, and equality of variance must be assessed. Each will be discussed in turn:
+
 
 ```{r}
 r_yearly <- yearly_means %>%
@@ -300,7 +301,15 @@ r_yearly <- yearly_means %>%
 
 glance(final_data_lm)
 ```
+**1. Linearity:** 
+By looking at the above scatterplot from section III.a, a clear linear pattern is evident. The Pearson's correlation coefficient (r) is `r r_yearly`. Given these observations, the first criteria failed to be violated.
 
+
+**2. Independence:**  
+The data were intentionally aggregated to calculate global rates of child mortality and emissions per capita, averaging the values without regard to their country of origin. However, considering that each year's data likely has a significant causal influence on the data of the following year, this model may be at risk of violating the independence assumption. The temporal nature of the data suggests that observations across years are not entirely independent, which could impact the validity of the independence assumption in our analysis.
+
+**3. Normality of residuals:**  
+The histogram below displays the distribution of residuals from the model. The distribution is approximately centered around zero, suggesting that the model does not have systematic bias. The overall shape of the distribution approximates a bell curve, but with a pronounced peak (leptokurtosis) and a moderate right skew. Nonetheless, this does not necessarily violate the assumption of normality, especially considering the large sample size.
 
 ```{r}
 final_data_lm |> 
@@ -322,7 +331,8 @@ final_data_lm %>%
 
 ```
 
-The Adjusted R-squared was 0.9476 for the data indicating that close to 95% of the variability in mean child mortality can be explained by mean CO2 emissions. This indicates that the model is a very good fit for the data. The only issue is the plot of the residuals, since the residuals do not have a random distribution and seem to follow a pattern. This could indicate that the relationship between CO2 emissions and child mortality is non-linear and could lead to issues with other tests on the data.
+**4. Equal variance of residuals:**  
+The scatterplot below illustrates the distribution of residuals against predicted values, providing insight into the homoscedasticity of the model. It appears that there is an increase in the spread of residuals as the predicted values rise. This pattern suggests a potential violation of the equal variance assumption, which could compromise the reliability of the linear regression analysis.
 
 ```{r}
 
@@ -347,10 +357,6 @@ final_data_lm %>%
     )
   )
 
-```
-
-
-```{r}
 
 predictions <- predict(final_data_lm)
 st_error <- sigma(final_data_lm)
@@ -363,7 +369,14 @@ predictions %>%
   theme_bw() +
   labs(x = "Predicted values", y = "",
        title = "Residuals vs. Predicted Values")
+
 ```
+
+-----
+To be incorporated:
+The Adjusted R-squared was 0.9476 for the data indicating that close to 95% of the variability in mean child mortality can be explained by mean CO2 emissions. This indicates that the model is a very good fit for the data. The only issue is the plot of the residuals, since the residuals do not have a random distribution and seem to follow a pattern. This could indicate that the relationship between CO2 emissions and child mortality is non-linear and could lead to issues with other tests on the data.
+-----
+
 
 ### c. Simulation
 
