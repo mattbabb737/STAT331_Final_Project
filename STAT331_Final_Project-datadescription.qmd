@@ -296,12 +296,21 @@ simulated_residuals_means <- rnorm(length(predictions_means), mean = 0, sd = sig
 # Create a dataframe with predicted values and simulated residuals
 simulated_data_means <- data.frame(predicted = predictions_means, residuals = simulated_residuals_means)
 
-# Plot simulated residuals vs predicted values to assess variance
-ggplot(simulated_data_means, aes(x = predicted, y = residuals)) +
-  geom_point() +
+# Preparing combined observed and simulated data
+combined_data <- means_data %>%
+  mutate(simulated_mean_child_mortality = simulated_data_means$predicted + simulated_data_means$residuals) %>%
+  gather(key = "type", value = "mortality_value", mean_child_mortality, simulated_mean_child_mortality) %>%
+  mutate(type = ifelse(type == "mean_child_mortality", "Observed", "Simulated"))
+
+# Plotting with ggplot2
+ggplot(combined_data, aes(x = log_mean_emissions, y = mortality_value)) +
+  geom_point(aes(color = type)) +
+  facet_wrap(~type, scales = "free_y") +
   theme_bw() +
-  labs(x = "Predicted Values", y = "Simulated Response Values",
-       title = "Simulated Response Values vs. Predicted Values")
+  labs(x = "Log Mean Emissions", y = "",
+       title = "Mean Child Mortality by Log Mean Emissions (Observed vs Simulated)",
+       color = "Type") +
+  scale_color_manual(values = c("Observed" = "blue", "Simulated" = "red"))
 ```
 
 
@@ -348,7 +357,7 @@ simulated_r_sq_means <- map_dbl(1:1000, ~ {
 # Plotting the histogram of R-squared values
 tibble(simulations = simulated_r_sq_means) %>%
   ggplot(aes(x = simulations)) + 
-    geom_histogram(binwidth = 0.001, color = "black", fill = "skyblue") +
+    geom_histogram(binwidth = 0.001, color = "steelblue", fill = "white") +
     labs(x = expression("Simulated"~ R^2),
          y = "Frequency",
          subtitle = "Histogram of Simulated R-squared Values") +
