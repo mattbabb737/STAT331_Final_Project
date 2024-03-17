@@ -270,6 +270,9 @@ means_data_lm %>%
   )
 ```
 
+The four criteria of linearity, independence of observations, normality of distribution, and equal variances failed to be violated, granting the claim that adjacent countries do not systematically bias one another's average levels of CO2 emissions per capita. The following steps proceed on the assumption that a linear regression is in fact an appropriate model.
+
+
 ### c. Simulation
 
 ```{r}
