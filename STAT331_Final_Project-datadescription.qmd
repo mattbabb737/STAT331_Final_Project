@@ -40,7 +40,6 @@ co2_pcap_cons <- read.csv(here::here("co2_pcap_cons.csv"))
 
 ```
 
-
 ## II. Methods
 
 ### a. Data cleaning
@@ -94,7 +93,7 @@ final_data <- child_mort_long %>%
 
 ### b. Exploratory analysis
 
-In order to get a sense of how these two variables relate over time, child_mortality and emissions (log transformed) for each country were averaged for each decade starting from the year 1953 through the year 2022. A new variable called Decade was created for this purpose. The resulting mean values are represented in the faceted plot below. Each point represents the mean values over a decade of `child_mortality` and `emissions` per capita for a single country. 
+In order to get a sense of how these two variables relate over time, child_mortality and emissions (log transformed) for each country were averaged for each decade starting from the year 1953 through the year 2022. A new variable called Decade was created for this purpose. The resulting mean values are represented in the faceted plot below. Each point represents the mean values over a decade of `child_mortality` and `emissions` per capita for a single country.
 
 ```{r}
 final_data <- final_data %>%
@@ -165,7 +164,6 @@ final_data %>%
 
 ```
 
-
 ```{r}
 
 yearly_means <- final_data %>%
@@ -201,6 +199,7 @@ yearly_means %>%
   scale_color_viridis_d()
 
 ```
+
 To extract the linear equation from the above plot, a linear model was created with `mean_emissions` as the explanatory variable, and `mean_child_mortality` as the response variable. The resulting table shows the linear analysis.
 
 The regression equation for the model is $\hat{y}=403.29298−74.17116⋅x$, where $\hat{y}$ is equal to the estimated mean_child_mortality, and $x$ is equal to the mean_emissions.
@@ -214,7 +213,7 @@ tidy(final_data_lm)
 
 ```
 
--------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### Test
 
@@ -225,11 +224,9 @@ yearly_means_log <- yearly_means %>%
 final_data_lm_log <- lm(mean_child_mortality ~ log_mean_emissions, data = yearly_means_log)
 ```
 
-
 ```{r}
 tidy(final_data_lm_log)
 ```
-
 
 ```{r}
 r_yearly_log <- yearly_means_log %>%
@@ -237,7 +234,6 @@ r_yearly_log <- yearly_means_log %>%
                              log_mean_emissions, method = "pearson")) %>%
   pull(pearsons_r)
 ```
-
 
 ```{r}
 final_data_lm_log %>%
@@ -285,11 +281,11 @@ ggplot(simulated_data_log, aes(x = predicted, y = simulated_child_mortality)) +
 
 ## End of Test
 
--------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ### b. Assessing appropriateness of fit
 
-[text here]
+\[text here\]
 
 ```{r}
 r_yearly <- yearly_means %>%
@@ -300,7 +296,6 @@ r_yearly <- yearly_means %>%
 
 glance(final_data_lm)
 ```
-
 
 ```{r}
 final_data_lm |> 
@@ -348,7 +343,6 @@ final_data_lm %>%
   )
 
 ```
-
 
 ```{r}
 
@@ -424,7 +418,7 @@ tibble(simulations = simulated_r_sq) |>
 
 ## Conclusion
 
-[text here]
+\[text here\]
 
 ## References
 
