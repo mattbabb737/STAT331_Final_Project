@@ -33,6 +33,7 @@ The hypothesized relationship between the two variables is that as the amount of
 
 library(tidyverse)
 library(broom)
+library(kableExtra)
 
 child_mortality_data <- read.csv(here::here("child_mortality_0_5_year_olds_dying_per_1000_born.csv"))
 
