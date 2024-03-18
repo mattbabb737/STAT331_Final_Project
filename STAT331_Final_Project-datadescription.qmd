@@ -33,13 +33,13 @@ The hypothesized relationship between the two variables is that as the amount of
 
 library(tidyverse)
 library(broom)
+library(kableExtra)
 
 child_mortality_data <- read.csv(here::here("child_mortality_0_5_year_olds_dying_per_1000_born.csv"))
 
 co2_pcap_cons <- read.csv(here::here("co2_pcap_cons.csv"))
 
 ```
-
 
 ## II. Methods
 
@@ -121,7 +121,11 @@ means_data_kable
 
 ### b. Exploratory analysis
 
+<<<<<<< HEAD
+In order to get a sense of how these two variables relate over time, child_mortality and emissions (log transformed) for each country were averaged for each decade starting from the year 1953 through the year 2022. A new variable called Decade was created for this purpose. The resulting mean values are represented in the faceted plot below. Each point represents the mean values over a decade of `child_mortality` and `emissions` per capita for a single country.
+=======
 In order to get a sense of how these two variables have related over time, `child_mortality` and `emissions` (log transformed) for each country were averaged for each decade starting from the year 1953 through the year 2022. A new variable called `Decade` was created for this purpose. The resulting mean values are represented in the faceted plot below. Each point represents the mean values over a decade of `child_mortality` and `emissions` per capita for a single country. 
+>>>>>>> 53009d61498b7eff7b6b7032d6f5d64705fd3109
 
 ```{r}
 final_data <- final_data %>%
@@ -212,11 +216,84 @@ The data were intentionally aggregated to calculate each country's rates of chil
 **3. Normality of residuals:**  
 The histogram below displays the distribution of residuals from the model. The distribution is approximately centered around zero, suggesting that the model does not have systematic bias. The overall shape of the distribution is bell-shaped with a modest left skew. These features do not violate the assumption of normality, especially considering the large sample size.
 
-
 ```{r}
 # New histogram for residuals
 
+<<<<<<< HEAD
+yearly_means <- final_data %>%
+  group_by(year) %>%
+  summarise(
+    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
+    mean_emissions = mean(emissions, na.rm = TRUE)
+  )
+
+
+yearly_means %>%
+  mutate(period = 25 * floor((year - 1800) / 25) + 1800) %>%
+  ggplot(aes(x = mean_emissions, y = mean_child_mortality, color = as.factor(period))) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Mean Emissions (Log Transformed)", y = "Mean Child Mortality",
+       title = "Scatter Plot of Mean Child Mortality vs Mean Emissions by Period",
+       color = "Period") +
+  geom_smooth(method = "lm", color = "blue") +
+  scale_x_log10() +
+  scale_color_viridis_d()
+
+# Un-logged
+yearly_means %>%
+  mutate(period = 25 * floor((year - 1800) / 25) + 1800) %>%
+  ggplot(aes(x = mean_emissions, y = mean_child_mortality, color = as.factor(period))) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Mean Emissions", y = "Mean Child Mortality",
+       title = "Scatter Plot of Mean Child Mortality vs Mean Emissions by Period",
+       color = "Period") +
+  geom_smooth(method = "lm", color = "blue") +
+  scale_color_viridis_d()
+
+```
+
+To extract the linear equation from the above plot, a linear model was created with `mean_emissions` as the explanatory variable, and `mean_child_mortality` as the response variable. The resulting table shows the linear analysis.
+
+The regression equation for the model is $\hat{y}=403.29298−74.17116⋅x$, where $\hat{y}$ is equal to the estimated mean_child_mortality, and $x$ is equal to the mean_emissions.
+
+```{r}
+
+final_data_lm <- lm(mean_child_mortality ~ mean_emissions,
+                    data = yearly_means)
+
+tidy(final_data_lm)
+
+```
+
+------------------------------------------------------------------------
+
+### Test
+
+```{r}
+yearly_means_log <- yearly_means %>%
+  mutate(log_mean_emissions = log(mean_emissions))
+
+final_data_lm_log <- lm(mean_child_mortality ~ log_mean_emissions, data = yearly_means_log)
+```
+
+```{r}
+tidy(final_data_lm_log)
+```
+
+```{r}
+r_yearly_log <- yearly_means_log %>%
+  summarize(pearsons_r = cor(mean_child_mortality,
+                             log_mean_emissions, method = "pearson")) %>%
+  pull(pearsons_r)
+```
+
+```{r}
+final_data_lm_log %>%
+=======
 means_data_lm %>%
+>>>>>>> 53009d61498b7eff7b6b7032d6f5d64705fd3109
   augment() %>%
   ggplot(aes(x = .resid)) +
     geom_histogram(aes(y = ..density..), colour = "black", fill = "white") + # Removed binwidth
@@ -229,7 +306,62 @@ means_data_lm %>%
 The  scatterplot below depicts the relationship between the residuals and the predicted values, offering a visual check for homoscedasticity within the model. The residuals are scattered around the dashed horizontal reference line with no discernible pattern that suggests an increase or decrease in their spread with respect to the fitted values. This lack of a distinct pattern indicates a consistent variance across the range of predictions, which fails to violate the assumption of equal variance. This supports the reliability of the linear regression analysis based on the equal variance criterion.
 
 ```{r}
+<<<<<<< HEAD
+final_data_lm_log %>%
+  augment() %>%
+  summarise(
+    response_variance = var(mean_child_mortality, na.rm = TRUE),
+    fitted_variance = var(.fitted, na.rm = TRUE),
+    residuals_variance = var(.resid, na.rm = TRUE)
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to = "Metric",
+    values_to = "Variance"
+  ) %>%
+  mutate(
+    Metric = recode(Metric,
+      'response_variance' = "Variance of Response",
+      'fitted_variance' = "Variance of Fitted Values",
+      'residuals_variance' = "Variance of Residuals"
+    )
+  )
+```
+
+```{r}
+fitted_values_log <- predict(final_data_lm_log)
+st_error_log <- sigma(final_data_lm_log)
+
+simulated_data_log <- data.frame(predicted = fitted_values_log) %>%
+  mutate(simulated_child_mortality = exp(predicted + rnorm(n(), mean = 0, sd = st_error_log)))
+
+ggplot(simulated_data_log, aes(x = predicted, y = simulated_child_mortality)) +
+  geom_point()
+```
+
+## End of Test
+
+------------------------------------------------------------------------
+
+### b. Assessing appropriateness of fit
+
+\[text here\]
+
+```{r}
+r_yearly <- yearly_means %>%
+  summarize(pearsons_r = cor(mean_emissions,
+                             mean_child_mortality, method = "pearson"))
+
+
+
+glance(final_data_lm)
+```
+
+```{r}
+final_data_lm |> 
+=======
 means_data_lm |> 
+>>>>>>> 53009d61498b7eff7b6b7032d6f5d64705fd3109
   augment() |> 
   ggplot(aes(x = .fitted, y = .resid)) +
   geom_point() +
@@ -282,11 +414,14 @@ variance_table <- means_data_lm %>%
 variance_table
 ```
 
+<<<<<<< HEAD
+=======
 ### d. Simulation
 
 The dual plot below compares observed values from the `means_data` set with simulated data derived from the same statistical characteristics of the original model. There are several points of comparison. Both plots have a concentration of data points within similar ranges of log mean emissions, suggesting that the simulation captures the general scope of the explanatory variable well. What’s more, the shape of the distributions appears consistent between the observed and simulated sets, reinforcing the model's validity for further simulation-based analysis. There are also a few differences, including the fact that the simulated data shows a somewhat wider range and a more pronounced presence of extreme values at both ends. Additionally, the observed data presents a few potential outliers, however they don't appear to be severe enough to significantly skew the overall trend of the distribution.
 
 
+>>>>>>> 53009d61498b7eff7b6b7032d6f5d64705fd3109
 ```{r}
 predictions_means <- predict(means_data_lm)
 
@@ -366,7 +501,7 @@ tibble(simulations = simulated_r_sq_means) %>%
 
 ## Conclusion
 
-[text here]
+\[text here\]
 
 ## References
 
