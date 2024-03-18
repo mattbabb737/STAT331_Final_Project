@@ -94,8 +94,7 @@ final_data <- child_mort_long %>%
 
 ### b. Exploratory analysis
 
-In order to get a sense of how these two variables have related over time, `child_mortality` and `emissions` (log transformed) for each country were averaged for each decade starting from the year 1953 through the year 2022. A new variable called `Decade` was created for this purpose. The resulting mean values are represented in the faceted plot below. Each point represents the mean values over a decade of `child_mortality` and `emissions` per capita for a single country. 
-
+This table below shows each country's mean child mortality, mean emissions per capita, and the log transformation of its mean emissions per capita, averaged across all of the years contained within the final_data set.
 
 ```{r}
 library(knitr)
@@ -123,6 +122,7 @@ means_data_kable <- kable(means_data, "html", escape = FALSE) %>%
 means_data_kable
 ```
 
+In order to get a sense of how these two variables have related over time, `child_mortality` and `emissions` (log transformed) for each country were averaged for each decade starting from the year 1953 through the year 2022. A new variable called `Decade` was created for this purpose. The resulting mean values are represented in the faceted plot below. Each point represents the mean values over a decade of `child_mortality` and `emissions` per capita for a single country. 
 
 ```{r}
 final_data <- final_data %>%
