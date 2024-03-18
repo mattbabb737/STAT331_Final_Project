@@ -1,0 +1,370 @@
+---
+title: "STAT331_Final_Project"
+author: "Justus Nunez, Daniel Alvarez, Matt Babb, Maya Doitch"
+format: 
+  html:
+    self-contained: true
+    code-tools: true
+    toc: true
+editor: visual
+self-contained: true
+code-fold: true
+message: false
+execute: 
+  error: true
+  echo: true
+  message: false
+  warning: false
+---
+
+## I. Introduction
+
+This report investigated the relationship between child mortality and carbon dioxide emissions per capita over the years of 1800 – 2022. Two data sets were acquired from Gapminder, which is an organization that seeks to educate the world’s transmitters of information with up-to-date facts about many metrics of health, infrastructure, sustainability, and many other crucial topics.
+
+The first data set, called `child_mortality_data`, lists the rates of child death under the age of five per 1,000 births from 197 countries (data begins at 1950 for 12 countries). Each observation corresponds to a single country, and each variable is one year.
+
+The second data set, called `co2_pcap_cons`, tracks tonnes (metric) of carbon dioxide emissions per capita for 194 countries. There are no NA values in this data set. Each observation corresponds to a single country, and each variable is one year.
+
+The hypothesized relationship between the two variables is that as the amount of CO2 emissions per capita increases for a country, its child mortality rate will drop. While we are not investigating causality, we anticipate that increased CO2 emissions indicate increasing industrialization and modernization within a country, which tends to predict dropping levels of child mortality (Ranganathan et al., 2015).
+
+```{r results='hide', message=FALSE, warning=FALSE}
+
+# Load in packages and .csv files
+
+library(tidyverse)
+library(broom)
+
+child_mortality_data <- read.csv(here::here("child_mortality_0_5_year_olds_dying_per_1000_born.csv"))
+
+co2_pcap_cons <- read.csv(here::here("co2_pcap_cons.csv"))
+
+```
+
+## II. Methods
+
+### a. Data cleaning
+
+After loading the necessary packages and reading in the two *Gapminder* files, both data sets were cleaned for ease of analysis. Each data set had its year variables re-designated as characters to standardize the variable type. The X’s in front of each year (carried over from *Gapminder*) were removed, and each year was then re-designated as a numeric type. Each data set was then pivoted into a long format so that each observation corresponded to a single country for a single year, along with their respective child_mortality and emissions values. These two data sets were named child_mort_long and co2_long.
+
+Finally, these two cleaned data sets were joined into one data set called final_data, which includes both child_mortality and emissions values for 194 countries over the years of 1800 – 2022.
+
+```{r}
+
+# Convert co2_pcap_cons into long format
+
+co2_long <- co2_pcap_cons %>%
+  mutate(across(matches("^X(18|19|20)\\d{2}$"), as.character)) %>% 
+  pivot_longer(
+    cols = matches("^X(18|19|20)\\d{2}$"), 
+    names_to = "year",
+    values_to = "emissions"
+  ) %>%
+  mutate(
+    year = str_remove(year, "^X"),
+    year = as.numeric(year)
+  )
+
+
+# Convert child_mortality_data into long format
+
+child_mort_long <- child_mortality_data %>%
+  mutate(across(matches("^X(18|19|20|21)\\d{2}$"), as.character)) %>% 
+  pivot_longer(
+    cols = matches("^X(18|19|20|21)\\d{2}$"), 
+    names_to = "year",
+    values_to = "child_mortality"
+  ) %>%
+  mutate(
+    year = str_remove(year, "^X"),
+    year = as.numeric(year)
+  )
+
+
+# Join the data sets
+
+final_data <- child_mort_long %>%
+  inner_join(co2_long, by = c("year", "country")) %>%
+  mutate(
+    child_mortality = as.numeric(as.character(child_mortality)),
+    emissions = as.numeric(as.character(emissions))
+  )
+
+```
+
+The table below shows each country's mean child mortality, mean emissions per capita, and the log transformation of its mean emissions per capita, averaged across all of the years contained within the final_data set.
+
+```{r}
+library(knitr)
+library(kableExtra)
+
+# Averaging across all years for each country
+
+means_data <- final_data %>%
+  group_by(country) %>%
+  summarise(
+    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
+    mean_emissions = mean(emissions, na.rm = TRUE)  
+  ) %>%
+  mutate(
+    log_mean_emissions = log(mean_emissions)
+  ) %>%
+  ungroup()  
+
+
+means_data_kable <- kable(means_data, "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = F, position = "left") %>%
+  scroll_box(width = "100%", height = "500px")
+
+
+means_data_kable
+```
+
+### b. Exploratory analysis
+
+In order to get a sense of how these two variables have related over time, `child_mortality` and `emissions` (log transformed) for each country were averaged for each decade starting from the year 1953 through the year 2022. A new variable called `Decade` was created for this purpose. The resulting mean values are represented in the faceted plot below. Each point represents the mean values over a decade of `child_mortality` and `emissions` per capita for a single country.
+
+```{r}
+#| fig-height: 8
+#| fig-width: 10
+
+final_data <- final_data %>%
+  mutate(Decade = cut(year, breaks = seq(1953, 2023, 10), 
+                      labels = c("1953-1962", "1963-1972",
+                                 "1973-1982", "1983-1992",
+                                 "1993-2002", "2003-2012",
+                                 "2013-2022"),
+                      include.lowest = TRUE))
+
+
+final_data_means <- final_data %>%
+  filter(!is.na(Decade)) %>%
+  group_by(country, Decade) %>%
+  summarize(
+    mean_emissions = mean(emissions, na.rm = TRUE),
+    mean_child_mortality = mean(child_mortality, na.rm = TRUE),
+    .groups = 'drop'
+  )
+
+
+ggplot(final_data_means, aes(x = mean_emissions,
+                             y = mean_child_mortality)) +
+  geom_point() +
+  facet_wrap(Decade ~ ., scales = "free") + 
+  labs(title = "Mean Child Mortality vs. Mean Emissions Over Decades (1953 - 2022)",
+       x = "Mean Emissions Per Capita (Log Transformed)",
+       y = "") +
+  scale_x_log10() +
+  theme_bw()
+```
+
+Each facet in the above plot clearly shows that the correlation between `child_mortality` and `emissions` is negative in every decade since 1953. This consistent pattern supports the hypothesis of an inverse relationship between these variables and provides a solid foundation for further analysis.
+
+## III. Analysis
+
+### a. Linear regression
+
+To evaluate the relationship between `mean_child_mortality` and `mean_emissions`, the final_data set was processed to compute averages for these variables with respect to all years in the data set for each country, resulting in a dataset named `means-data`. Then, a scatterplot was generated, where each point represents the averages for a given country An overlaid line of best fit reveals a pronounced negative correlation, indicating that countries with higher emissions are generally associated with lower child mortality rates, and vice versa.
+
+```{r}
+# Snapshot Scatterplot
+
+means_data %>%
+  ggplot(aes(x = log_mean_emissions, y = mean_child_mortality)) +
+  geom_point() +
+  theme_bw() +
+  labs(x = "Log of Mean Emissions", y = "", 
+       title = "Scatter Plot of Mean Child Mortality vs Log of Mean Emissions by Country") +
+  geom_smooth(method = "lm", color = "blue")
+```
+
+To extract the linear equation from the above plot, a linear model was created with `log_mean_emissions` as the explanatory variable, and `mean_child_mortality` as the response variable. The resulting table shows the linear analysis.
+
+The regression equation for the model is $\hat{y}=259.55042−31.34446⋅x$, where $\hat{y}$ is equal to the estimated `mean_child_mortality`, and $x$ is equal to the `log_mean_emissions`. The coefficient for `log_mean_emissions` indicates that for a one unit increase in the log-transformed emissions (measured in tonnes), the `mean_child_mortality` is expected to decrease by approximately 31.34446 units, holding all else constant. The intercept term of $259.55042$ represents the estimated `mean_child_mortality` when `log_mean_emissions` is zero.
+
+```{r}
+# New linear model
+
+means_data_lm <- lm(mean_child_mortality ~ log_mean_emissions,
+                    data = means_data)
+
+tidy_lm <- tidy(means_data_lm)
+
+# Use kable to create a nice-looking table
+kable_lm <- kable(tidy_lm, format = "html", caption = "Summary of Linear Model",
+                  digits = 4)
+
+# To display the table in R Markdown
+kable_lm
+```
+
+### b. Assessing appropriateness of fit
+
+In order to conclude with confidence the appropriateness of using a linear regression for this relationship, the four model conditions of linearity, independence, normality of distribution, and equality of variance must be assessed. Each will be discussed in turn:
+
+```{r results='hide', message=FALSE, warning=FALSE}
+
+r_means <- means_data %>%
+  summarize(pearsons_r = cor(log_mean_emissions,
+                             mean_child_mortality, method = "pearson"))
+
+```
+
+**1. Linearity:**\
+By looking at the above scatterplot from section III.a, a clear linear pattern is evident. The Pearson's correlation coefficient (r) is `r r_means`. Given these observations, the first criteria failed to be violated.
+
+**2. Independence:**\
+The data were intentionally aggregated to calculate each country's rates of child mortality and emissions per capita, averaging the values without regard to their year of origin. However, considering that each country's data likely has a significant causal influence on the data of nearby countries, this model may be at risk of violating the independence assumption. The nature of the data suggests that observations across countries are not entirely independent, which could impact the validity of the independence assumption in our analysis.
+
+**3. Normality of residuals:**\
+The histogram below displays the distribution of residuals from the model. The distribution is approximately centered around zero, suggesting that the model does not have systematic bias. The overall shape of the distribution is bell-shaped with a modest left skew. These features do not violate the assumption of normality, especially considering the large sample size.
+
+```{r}
+# New histogram for residuals
+
+means_data_lm %>%
+  augment() %>%
+  ggplot(aes(x = .resid)) +
+    geom_histogram(aes(y = ..density..), colour = "black", fill = "white") +
+    geom_density(alpha = .2, fill = "#FF6666") +
+    labs(x = "Residuals", y = "",
+         title = "Histogram of Residuals with Normal Density Curve") +
+    theme_bw()
+```
+
+**4. Equal variance of residuals:**\
+The scatterplot below depicts the relationship between the residuals and the predicted values, offering a visual check for homoscedasticity within the model. The residuals are scattered around the dashed horizontal reference line with no clearly discernible pattern that suggests an increase or decrease in their spread with respect to the fitted values. This lack of a distinct pattern indicates a consistent variance across the range of predictions, which fails to violate the assumption of equal variance. This supports the reliability of the linear regression analysis based on the equal variance criterion.
+
+```{r}
+means_data_lm |> 
+  augment() |> 
+  ggplot(aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
+  labs(x = "Fitted Values", y = "",
+       title = "Residuals vs. Fitted Values") +
+  theme_minimal()
+```
+
+**Determination of fit:**\
+The four criteria of linearity, independence of observations, normality of distribution, and equal variances failed to be violated, granting the claim that adjacent countries do not systematically bias one another's average levels of CO2 emissions per capita. The following steps proceed on the assumption that a linear regression is in fact an appropriate model.
+
+### c. Variances and R-squared
+
+The variance table below provides insight into the model's fit by expressing the total variance in the dependent variable (Variance of Response), the variance explained by the model (Variance of Fitted Values), and the variance not explained by the model (Variance of Residuals). With a Variance of Response at $6729.624$, Variance of Fitted Values at $2457.514$, and Variance of Residuals at $4272.109$, we can calculate the proportion of the total variance explained by the model.\
+The adjusted $R^2$ value indicates that approximately `r round(glance(means_data_lm)$adj.r.squared * 100)`% of the variability in mean child mortality can be explained by mean CO2 emissions. This suggests that the model has decent explanatory power, though there still remains a significant proportion of variance unaccounted for.
+
+```{r results='hide', message=FALSE, warning=FALSE}
+glance(means_data_lm)
+```
+
+```{r}
+# Variances table
+
+variance_table <- means_data_lm %>%
+  augment() %>%
+  summarise(
+    response_variance = var(mean_child_mortality, na.rm = TRUE),
+    fitted_variance = var(.fitted, na.rm = TRUE),
+    residuals_variance = var(.resid, na.rm = TRUE)
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to = "Metric",
+    values_to = "Variance"
+  ) %>%
+  mutate(
+    Metric = case_when(
+      Metric == "response_variance" ~ "Variance of Response",
+      Metric == "fitted_variance" ~ "Variance of Fitted Values",
+      Metric == "residuals_variance" ~ "Variance of Residuals",
+      TRUE ~ Metric # Fallback, should not be needed
+    )
+  ) %>%
+  kable("html") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = FALSE) %>%
+  column_spec(1, bold = TRUE)
+
+variance_table
+```
+
+### d. Simulation
+
+The dual plot below compares observed values from the `means_data` set with simulated data derived from the same statistical characteristics of the original model. There are several points of comparison. Both plots have a concentration of data points within similar ranges of log mean emissions, suggesting that the simulation captures the general scope of the explanatory variable well. What’s more, the shape of the distributions appears consistent between the observed and simulated sets, reinforcing the model's validity for further simulation-based analysis. There are also a few differences, including the fact that the simulated data shows a somewhat wider range and a more pronounced presence of extreme values at both ends. Additionally, the observed data presents a few potential outliers, however they don't appear to be severe enough to significantly skew the overall trend of the distribution.
+
+```{r}
+predictions_means <- predict(means_data_lm)
+
+# Generate simulated residuals
+simulated_residuals_means <- rnorm(length(predictions_means),
+                                   mean = 0, sd = sigma(means_data_lm))
+
+# Create a dataframe with predicted values and simulated residuals
+simulated_data_means <- data.frame(predicted = predictions_means,
+                                   residuals = simulated_residuals_means)
+
+# Preparing combined observed and simulated data
+combined_data <- means_data %>%
+  mutate(simulated_mean_child_mortality = simulated_data_means$predicted + simulated_data_means$residuals) %>%
+  gather(key = "type", value = "mortality_value", mean_child_mortality, simulated_mean_child_mortality) %>%
+  mutate(type = ifelse(type == "mean_child_mortality", "Observed", "Simulated"))
+
+# Plotting with ggplot2
+ggplot(combined_data, aes(x = log_mean_emissions, y = mortality_value)) +
+  geom_point(aes(color = type)) +
+  facet_wrap(~type, scales = "free_y") +
+  theme_bw() +
+  labs(x = "Log Mean Emissions", y = "",
+       title = "Mean Child Mortality by Log Mean Emissions (Observed vs Simulated)",
+       color = "Type") +
+  scale_color_manual(values = c("Observed" = "blue", "Simulated" = "red"))
+```
+
+Proceeding with the simulation analysis, the simulation process was repeated 1000 times to generate a large sample of similar datasets, enabling the comparison of the actual R-squared value derived from the original dataset to the mean R-squared value from the iterated simulations. The histogram below represents the distribution of R-squared values from the simulated datasets, and the mean of these values centers right around 0.35, closely aligning with the original R-squared value of `r round(glance(means_data_lm)$r.squared, 3)`. This close correspondence suggests that the original dataset was indeed appropriately modeled by the linear regression conducted in this report.
+
+```{r}
+noise <- function(x, mean = 0, sd) {
+  return(x + rnorm(length(x), mean, sd))
+}
+
+st_error_means <- sigma(means_data_lm)
+
+simulated_response_means <- map_dfc(.x = 1:1000, .f = ~ {
+  tibble(
+    simulated_child_mortality = noise(
+      x = predict(means_data_lm, means_data),  
+      sd = st_error_means                      
+    )
+  )
+})
+
+binded_simulations_means <- means_data %>%
+  select(country, log_mean_emissions) %>%
+  bind_cols(simulated_response_means)
+
+new_col_names <- c("country", "log_mean_emissions", paste("simulated_child_mortality",
+                                                          1:1000, sep = "_"))
+names(binded_simulations_means) <- new_col_names
+
+simulated_r_sq_means <- map_dbl(1:1000, ~ {
+  col_name <- paste("simulated_child_mortality", .x, sep = "_")
+  model <- lm(reformulate("log_mean_emissions", response = col_name), data = binded_simulations_means)
+  summary(model)$r.squared
+})
+
+tibble(simulations = simulated_r_sq_means) %>%
+  ggplot(aes(x = simulations)) + 
+    geom_histogram(binwidth = 0.001, color = "steelblue", fill = "white") +
+    labs(x = expression("Simulated"~ R^2),
+         y = "",
+         subtitle = "Histogram of Simulated R-squared Values") +
+    theme_bw() +
+    scale_y_continuous()
+```
+
+## References
+
+OpenAI. (2024). ChatGPT (Version 4.0) \[Software\]. Accessed on March 17, 2024.
+
+Ranganathan, S., Swain, R. & Sumpter, D. (2015). The demographic transition and economic growth: Implications for development policy. *Palgrave Commun* **1**, 15033. https://doi.org/10.1057/palcomms.2015.33
